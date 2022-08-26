@@ -24,14 +24,14 @@ int main (int argc, char *argv[])
     if (file == NULL) { printf ("Failed to read file or OOM\n"); return -1; }
 
     fprintf (out_stream, "=== Alphabetical order ===\n\n");
-    alpha_file_lines_sort (file);
+    alpha_file_lines_sort (file, cust_qsort);
     write_lines (file, out_stream);
 
     fprintf (out_stream, "\n=== Original order ===\n\n");
     write_buf (file, out_stream);
 
     fprintf (out_stream, "\n=== Reverse order===\n\n");
-    rev_alpha_file_lines_sort (file);
+    rev_alpha_file_lines_sort (file, cust_qsort);
     write_lines (file, out_stream);
 
     free_text (file);

@@ -50,7 +50,6 @@ ssize_t file_size (FILE *stream);
  * @brief      Counts number of lines in text
  *
  * @param[in]  text      Null-terminated string
- * @param[in]  text_len  The text length
  *
  * @return     Number of lines.
  */
