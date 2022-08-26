@@ -14,49 +14,23 @@ struct text *read_text (FILE *stream)
 
     if (file_len_tmp == -1) { return NULL; }
 
-    size_t file_len = (size_t) file_len_tmp;
+    size_t file_len      = (size_t) file_len_tmp;
 
-    unsigned int n_lines  = 0;
+    struct text *file    = (struct text *) calloc (1,        sizeof (struct text));
+    file->content        = (char *)        calloc (file_len, sizeof (char));
+    file->content_size   = file_len;
+    char *content_p      = file->content;
 
-    struct text *file  = (struct text *) calloc (1,        sizeof (struct text));
-    file->content      = (char *)        calloc (file_len, sizeof (char));
-    file->content_size = file_len;
-    char *content_p    = file->content;
+    unsigned int n_lines = count_lines (content_p, file_len);
+    file->lines          = (struct line *) calloc (n_lines, sizeof (struct line));
+    file->cnt            = n_lines;
 
     fread (content_p, sizeof (char), file_len, stream);
-
-    for (unsigned int i = 0; i < file_len; ++i)
-    {
-        if (content_p[i] == '\n')
-        {
-            n_lines++;
-        }
-    }
-
-    file->lines = (struct line *) calloc (n_lines, sizeof (struct line));
-    file->cnt   = n_lines;
-
-    unsigned int line_len = 0;
-    unsigned int n_line   = 0;
-    char *line_start      = content_p;
-
-    for (unsigned int i = 0; i < file_len; ++i)
-    {
-        line_len++;
-
-        if (content_p[i] == '\n')
-        {
-            file->lines[n_line].content = line_start;
-            file->lines[n_line].len     = line_len;
-
-            n_line++;
-            line_start = content_p + i + 1;
-            line_len = 0;
-        }
-    }
-
     if (ferror (stream)) return NULL;
-    else                 return file; 
+
+    create_index(file);
+
+    return file;
 }
 
 int write_lines (const struct text *text, FILE *stream)
@@ -92,6 +66,8 @@ int write_buf (const struct text *text, FILE *stream)
 
 ssize_t file_size (FILE *stream)
 {
+    assert (stream != NULL && "pointer can't be NULL");
+
     fseek (stream, 0, SEEK_END);
     ssize_t file_len = ftell (stream);
     fseek (stream, 0, SEEK_SET);
@@ -99,8 +75,52 @@ ssize_t file_size (FILE *stream)
     return file_len;
 }
 
+unsigned int count_lines (const char *text, size_t text_len)
+{
+    assert (text != NULL && "pointer can't be NULL");
+
+    unsigned int n_lines = 0;
+
+    for (unsigned int i = 0; i < text_len; ++i)
+    {
+        if (text[i] == '\n')
+        {
+            n_lines++;
+        }
+    }
+
+    return n_lines;
+}
+
+void create_index (struct text *text)
+{
+    size_t file_len = text->content_size;
+
+    unsigned int line_len = 0;
+    unsigned int n_line   = 0;
+    char *content         = text->content;
+    char *line_start      = text->content;
+
+    for (unsigned int i = 0; i < file_len; ++i)
+    {
+        line_len++;
+
+        if (content[i] == '\n')
+        {
+            text->lines[n_line].content = line_start;
+            text->lines[n_line].len     = line_len;
+
+            n_line++;
+            line_start = content + i + 1;
+            line_len = 0;
+        }
+    }
+}
+
 void free_text (struct text *text)
 {
+    assert (text != NULL && "pointer can't be NULL");
+
     free (text->content);
     free (text->lines);
     free (text);
