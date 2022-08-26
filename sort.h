@@ -38,16 +38,6 @@ void alpha_file_lines_sort (struct file *file);
 void rev_alpha_file_lines_sort (struct file *file);
 
 /**
- * @brief      Compare lines by their numbers
- *
- * @param[in]  lhs   The left hand side
- * @param[in]  rhs   The right hand side
- *
- * @return     as in strcmp
- */
-int num_linecmp (const struct line *lhs, const struct line *rhs);
-
-/**
  * @brief      Compare lines by their content
  *
  * @param[in]  lhs   The left hand side
@@ -55,7 +45,7 @@ int num_linecmp (const struct line *lhs, const struct line *rhs);
  *
  * @return     as in strcmp
  */
-int alpha_linecmp (const struct line *lhs, const struct line *rhs);
+int alpha_linecmp (const void *lhs, const void *rhs);
 
 /**
  * @brief      Compare lines by their reversed content
@@ -65,7 +55,7 @@ int alpha_linecmp (const struct line *lhs, const struct line *rhs);
  *
  * @return     as in strcmp
  */
-int rev_alpha_linecmp (const struct line *lhs, const struct line *rhs);
+int rev_alpha_linecmp (const void *lhs, const void *rhs);
 
 /**
  * @brief      Compare reversed given strings only by alpha characters

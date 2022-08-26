@@ -16,22 +16,38 @@ static const int     RUS_MAX_VAL = 255;
 
 void alpha_file_lines_sort (struct file *lines)
 {
-    qsort(lines->lines, lines->cnt, sizeof (struct line), (int (*)(const void *, const void *)) alpha_linecmp);
+    assert (lines != NULL && "pointer can't be NULL");
+
+    qsort(lines->lines, lines->cnt, sizeof (struct line), alpha_linecmp);
 }
 
 void rev_alpha_file_lines_sort (struct file *lines)
 {
-    qsort(lines->lines, lines->cnt, sizeof (struct line), (int (*)(const void *, const void *)) rev_alpha_linecmp);
+    assert (lines != NULL && "pointer can't be NULL");
+
+    qsort(lines->lines, lines->cnt, sizeof (struct line), rev_alpha_linecmp);
 }
 
-int alpha_linecmp (const struct line *lhs, const struct line *rhs)
+int alpha_linecmp (const void *lhs, const void *rhs)
 {
-    return alpha_strcmp(lhs->content, rhs->content);
+    assert (lhs != NULL && "pointer can't be NULL");
+    assert (rhs != NULL && "pointer can't be NULL");
+
+    const struct line *lhs_cast = (const struct line *) lhs;
+    const struct line *rhs_cast = (const struct line *) rhs;
+
+    return alpha_strcmp(lhs_cast->content, rhs_cast->content);
 }
 
-int rev_alpha_linecmp (const struct line *lhs, const struct line *rhs)
+int rev_alpha_linecmp (const void *lhs, const void *rhs)
 {
-    return rev_alpha_strcmp(lhs->content, lhs->len, rhs->content, rhs->len);
+    assert (lhs != NULL && "pointer can't be NULL");
+    assert (rhs != NULL && "pointer can't be NULL");
+
+    const struct line *lhs_cast = (const struct line *) lhs;
+    const struct line *rhs_cast = (const struct line *) rhs;
+
+    return rev_alpha_strcmp(lhs_cast->content, lhs_cast->len, rhs_cast->content, rhs_cast->len);
 }
 
 int alpha_strcmp (const char *lhs, const char *rhs)
