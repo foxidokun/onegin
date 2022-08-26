@@ -13,6 +13,7 @@ make
 ```
 And then
 ```bash
+./bin/onegin -h #for short help message
 ./bin/onegin <input file> <output file>
 #OR
 make run # aka ./bin/onegin in.txt out.txt
