@@ -16,12 +16,12 @@ int main (int argc, char *argv[])
     FILE *in_stream  = fopen (argv[1], "r");
     FILE *out_stream = fopen (argv[2], "w");
 
-    if (in_stream  == NULL) { printf ("Failed to open input file");  return -1; }
+    if (in_stream  == NULL) { printf ("Failed to open input file" ); return -1; }
     if (out_stream == NULL) { printf ("Failed to open output file"); return -1; }
 
     struct file *file = read_file (in_stream);
 
-    if (file == NULL) { printf ("Failed to read lines or OOM\n"); return -1; }
+    if (file == NULL) { printf ("Failed to read file or OOM\n"); return -1; }
 
     fprintf (out_stream, "=== Alphabetical order ===\n\n");
     alpha_file_lines_sort (file);
