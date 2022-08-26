@@ -46,4 +46,21 @@ int write_buf (const struct text *text, FILE *stream);
  */
 ssize_t file_size (FILE *stream);
 
+/**
+ * @brief      Counts number of lines in text
+ *
+ * @param[in]  text      The text
+ * @param[in]  text_len  The text length
+ *
+ * @return     Number of lines.
+ */
+unsigned int count_lines (const char *text, size_t text_len);
+
+/**
+ * @brief      Point text::lines to line first characters in text::content
+ *
+ * @param      text  text
+ */
+void create_index (struct text *text);
+
 #endif
