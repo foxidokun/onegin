@@ -30,12 +30,12 @@ int chrcmp (char lhs, char rhs);
 /**
  * @brief      Sort lines by their content
  */
-void alpha_file_lines_sort (struct file *file);
+void alpha_file_lines_sort (struct text *file);
 
 /**
  * @brief      Sort lines by their reversed content
  */
-void rev_alpha_file_lines_sort (struct file *file);
+void rev_alpha_file_lines_sort (struct text *file);
 
 /**
  * @brief      Compare lines by their content
@@ -64,6 +64,8 @@ int rev_alpha_linecmp (const void *lhs, const void *rhs);
  * 
  * @param[in]  lhs   The left hand side
  * @param[in]  rhs   The right hand side
+ * @param[in]  l_len Length of lhs
+ * @param[in]  r_len Length of rhs
  *
  * @return     as in strcmp
  */

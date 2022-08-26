@@ -5,7 +5,7 @@
 /**
  * @brief      File content 
  */
-struct file
+struct text
 {
     char *content;
     struct line* lines;     /// Array of lines, but line::content is pointer to file_lines::content

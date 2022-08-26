@@ -6,7 +6,7 @@
 #include "file.h"
 
 
-struct file *read_file (FILE *stream)
+struct text *read_text (FILE *stream)
 {
     assert (stream != NULL && "pointer can't be NULL");
 
@@ -18,7 +18,7 @@ struct file *read_file (FILE *stream)
 
     unsigned int n_lines  = 0;
 
-    struct file *file  = (struct file *) calloc (1,        sizeof (struct file));
+    struct text *file  = (struct text *) calloc (1,        sizeof (struct text));
     file->content      = (char *)        calloc (file_len, sizeof (char));
     file->content_size = file_len;
     char *content_p    = file->content;
@@ -59,16 +59,16 @@ struct file *read_file (FILE *stream)
     else                 return file; 
 }
 
-int write_lines (const struct file *file, FILE *stream)
+int write_lines (const struct text *text, FILE *stream)
 {
-    assert (file   != NULL && "pointer can't be NULL");
+    assert (text   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
 
     struct line *cur_line = NULL;
 
-    for (unsigned int i = 0; i < file->cnt; ++i)
+    for (unsigned int i = 0; i < text->cnt; ++i)
     {
-        cur_line = file->lines + i;
+        cur_line = text->lines + i;
 
         if (fwrite (cur_line->content, sizeof (char), cur_line->len, stream) != cur_line->len)
         {
@@ -79,14 +79,14 @@ int write_lines (const struct file *file, FILE *stream)
     return 0;
 }
 
-int write_buf (const struct file *file, FILE *stream)
+int write_buf (const struct text *text, FILE *stream)
 {
-    assert (file   != NULL && "pointer can't be NULL");
+    assert (text   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
 
-    size_t n_written = fwrite (file->content, sizeof (char), file->content_size, stream);
+    size_t n_written = fwrite (text->content, sizeof (char), text->content_size, stream);
 
-    if (n_written == file->content_size) return +0;
+    if (n_written == text->content_size) return +0;
     else                                 return -1;
 }
 
@@ -99,9 +99,9 @@ ssize_t file_size (FILE *stream)
     return file_len;
 }
 
-void free_file (struct file *file)
+void free_text (struct text *text)
 {
-    free (file->content);
-    free (file->lines);
-    free (file);
+    free (text->content);
+    free (text->lines);
+    free (text);
 }

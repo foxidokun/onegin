@@ -10,32 +10,32 @@
  *
  * @return             File
  */
-struct file *read_file (FILE *stream);
+struct text *read_text (FILE *stream);
 
 /**
  * @brief      Free memory, used by given file struct
  */
-void free_file (struct file *f_lines);
+void free_text (struct text *f_lines);
 
 /**
  * @brief      Write lines into given stream
  *
- * @param      file    File
+ * @param      text    Text
  * @param      stream  The stream write lines to
  *
  * @return     Non-zero value on error
  */
-int write_lines (const struct file *file, FILE *stream);
+int write_lines (const struct text *text, FILE *stream);
 
 /**
  * @brief      Write original buffer into stream
  *
- * @param[in]  file    File 
+ * @param[in]  text    Text 
  * @param      stream  The stream write lines to
  *
  * @return     Non-zero value on error
  */
-int write_buf (const struct file *file, FILE *stream);
+int write_buf (const struct text *text, FILE *stream);
 
 /**
  * @brief      Return stream size in bytes
