@@ -26,25 +26,25 @@ struct file_lines *read_lines (FILE *stream)
         n++;
 
         // Allocate buffer for line content
-        content = (char *) calloc (line_size, sizeof (char));
+        content = (char *) calloc ((size_t) line_size, sizeof (char));
 
         if (content == NULL) return NULL;
 
         // Copy all content from buf except '\n',
         // instead '\0' will be inserted by strncpy
-        strncpy (content, buf, line_size - 1);
+        strncpy (content, buf, (size_t) line_size - 1);
 
         // Insert line
-        insert_line(lines, content, n);
+        insert_line(&lines, content, n);
     }
 
     free (buf);
 
-    if (!feof (stream)) return lines;
-    else                return  NULL; 
+    if (feof (stream)) return lines;
+    else               return  NULL; 
 }
-
-int insert_line (struct file_lines **lines, char *content, int number)
+ 
+int insert_line (struct file_lines **lines, char *content, unsigned int number)
 {
     assert (lines   != NULL && "pointer can't be NULL");
     assert (*lines  != NULL && "pointer can't be NULL");
@@ -52,12 +52,16 @@ int insert_line (struct file_lines **lines, char *content, int number)
 
     struct file_lines *lines_v = *lines;
 
-    if (lines_v->alloc_cnt == lines_v->cnt)
+    if (lines_v->cnt == lines_v->alloc_cnt)
     {
-        lines_v = (struct file_lines *) realloc(lines_v, lines_v->alloc_cnt * 2);
+        unsigned int alloc_cnt = lines_v->alloc_cnt;
+        struct line *lines_tmp = lines_v->lines;
 
-        if (lines_v == NULL) return -1;
+        lines_tmp = (struct line *) realloc(lines_v->lines, alloc_cnt * 2 * sizeof (struct line));
 
+        if (lines_tmp == NULL) return -1;
+
+        lines_v->lines      = lines_tmp;
         lines_v->alloc_cnt *= 2;
     }
 
@@ -70,30 +74,48 @@ int insert_line (struct file_lines **lines, char *content, int number)
     return 0;
 }
 
-void free_file_lines (struct file_lines *ptr)
+int write_lines (const struct file_lines *file, FILE *stream)
 {
-    assert (ptr != NULL && "pointer can't be NULL");
-
-    for (int i = 0; i < ptr->cnt; ++i)
-    {
-        free (ptr->lines[i].content);
-    }
-
-    free (ptr);
-}
-
-int write_lines (const struct file_lines *lines, FILE *stream)
-{
-    assert (lines  != NULL && "pointer can't be NULL");
+    assert (file   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
 
-    for (int i = 0; i < lines->cnt; ++i)
+    for (unsigned int i = 0; i < file->cnt; ++i)
     {
-        if (fputs(lines->lines[i].content, stream) == EOF)
+        if (fputs(file->lines[i].content, stream) == EOF)
         {
             return -1;
         }
+
+        fputc ('\n', stream);
     }
 
     return 0;
+}
+
+void free_file_lines (struct file_lines *file)
+{
+    assert (file != NULL && "pointer can't be NULL");
+
+    for (unsigned int i = 0; i < file->cnt; ++i)
+    {
+        free (file->lines[i].content);
+    }
+
+    free (file->lines);
+    free (file);
+}
+
+struct file_lines *create_file_lines (unsigned int n)
+{
+    struct file_lines *f_lines = (struct file_lines *) calloc (1, sizeof (struct file_lines));
+
+    if (f_lines == NULL) return NULL;
+
+    f_lines->alloc_cnt = n;
+    f_lines->cnt = 0;
+    f_lines->lines = (struct line*) calloc (n, sizeof (struct line));
+
+    if (f_lines->lines == NULL) return NULL;
+
+    return f_lines;
 }

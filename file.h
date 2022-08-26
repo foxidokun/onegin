@@ -13,7 +13,9 @@
 struct file_lines *read_lines (FILE *stream);
 
 /**
- * @brief       Create file_lines with given alloc_cnt
+ * @brief       Allocate & Initialize file_lines with given alloc_cnt
+ * 
+ * Tou HAVE TO call free_file_lines () to free memory used by this struct
  *
  * @return     Pointer to allocated and initialized struct
  */
@@ -28,12 +30,12 @@ struct file_lines *create_file_lines (unsigned int n);
  *
  * @return     Non-zero value on error
  */
-int insert_line (struct file_lines *lines, char *content,  int number); 
+int insert_line (struct file_lines **lines, char *content, unsigned int number); 
 
 /**
  * @brief      Free memory, used by given file_lines struct
  */
-void free_file_lines (struct file_lines *ptr);
+void free_file_lines (struct file_lines *f_lines);
 
 /**
  * @brief      Write lines into given stream
@@ -43,6 +45,6 @@ void free_file_lines (struct file_lines *ptr);
  *
  * @return     Non-zero value on error
  */
-int write_lines (struct file_lines *lines, FILE *stream);
+int write_lines (const struct file_lines *lines, FILE *stream);
 
 #endif

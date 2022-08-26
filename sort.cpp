@@ -22,8 +22,8 @@ void rev_alpha_file_lines_sort (struct file_lines *lines)
 
 int num_linecmp (const struct line *lhs, const struct line *rhs)
 {
-    int lhs_n = lhs->number;
-    int rhs_n = rhs->number;
+    unsigned int lhs_n = lhs->number;
+    unsigned int rhs_n = rhs->number;
 
     if      (lhs_n < rhs_n) return -1;
     else if (lhs_n > rhs_n) return +1;
@@ -63,8 +63,8 @@ int rev_alpha_strcmp (const char *lhs, const char *rhs)
     assert (lhs != NULL && "pointer can't be NULL");
     assert (rhs != NULL && "pointer can't be NULL");
 
-    int l_cur = strlen (lhs);
-    int r_cur = strlen (rhs);
+    size_t l_cur = strlen (lhs);
+    size_t r_cur = strlen (rhs);
 
     while (
            lhs[l_cur] != '\0' &&
