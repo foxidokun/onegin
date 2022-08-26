@@ -12,8 +12,8 @@ struct file_lines *read_lines (FILE *stream)
 {
     assert (stream != NULL && "pointer can't be NULL");
 
-    size_t  buf_size = 64;
-    ssize_t line_size = 0;
+    size_t  buf_size  = 64;
+    ssize_t line_size =  0;
     unsigned int n = 0;
     struct file_lines *lines = create_file_lines (LINES_CNT);
     char *buf = (char *) calloc (buf_size, sizeof (char));

@@ -65,6 +65,7 @@ int alpha_strcmp (const char *lhs, const char *rhs)
     {
         lhs++;
         rhs++;
+        
         while (lhs[0] != '\0' && !cp1251_isalpha (lhs[0])) lhs++;
         while (rhs[0] != '\0' && !cp1251_isalpha (rhs[0])) rhs++;
     }
@@ -91,6 +92,7 @@ int rev_alpha_strcmp (const char *lhs, const char *rhs)
     {
         l_cur--;
         r_cur--;
+
         while (l_cur > 0 && !cp1251_isalpha (lhs[l_cur])) l_cur--;
         while (r_cur > 0 && !cp1251_isalpha (rhs[r_cur])) r_cur--;
     }
@@ -108,6 +110,7 @@ int chrcmp (char lhs, char rhs)
 int cp1251_isalpha (char c)
 {
     unsigned char u_c = (unsigned char) c;   
+
     return (u_c >=     RUS_MIN_VAL && u_c <=     RUS_MAX_VAL)
         || (u_c >=  ENG_UP_MIN_VAL && u_c <=  ENG_UP_MAX_VAL)
         || (u_c >= ENG_LOW_MIN_VAL && u_c <= ENG_LOW_MAX_VAL);

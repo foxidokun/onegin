@@ -27,12 +27,10 @@ int main (int argc, char *argv[])
     write_lines(lines, out_stream);
 
     fprintf (out_stream, "\n=== Original order ===\n\n");
-
     num_file_lines_sort(lines);
     write_lines(lines, out_stream);
 
     fprintf (out_stream, "\n=== Reverse order===\n\n");
-
     rev_alpha_file_lines_sort (lines);
     write_lines(lines, out_stream);
 
