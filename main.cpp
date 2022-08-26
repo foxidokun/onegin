@@ -19,7 +19,7 @@ int main (int argc, char *argv[])
     if (in_stream  == NULL) { printf ("Failed to open input file" ); return -1; }
     if (out_stream == NULL) { printf ("Failed to open output file"); return -1; }
 
-    struct file *file = read_file (in_stream);
+    struct text *file = read_text (in_stream);
 
     if (file == NULL) { printf ("Failed to read file or OOM\n"); return -1; }
 
@@ -34,7 +34,7 @@ int main (int argc, char *argv[])
     rev_alpha_file_lines_sort (file);
     write_lines (file, out_stream);
 
-    free_file (file);
+    free_text (file);
 
     fclose ( in_stream);
     fclose (out_stream);
