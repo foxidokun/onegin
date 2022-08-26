@@ -6,15 +6,11 @@
 #include "file.h"
 
 
-// Минусы: двойной проход по буферу
-// Плюсы:  ftell может быть UB на windows
 struct file *read_file (FILE *stream)
 {
     assert (stream != NULL && "pointer can't be NULL");
 
-    fseek (stream, 0, SEEK_END);
-    ssize_t file_len_tmp = ftell (stream);
-    fseek (stream, 0, SEEK_SET);
+    ssize_t file_len_tmp = file_size (stream);
 
     if (file_len_tmp == -1) { return NULL; }
 
@@ -92,6 +88,15 @@ int write_buf (const struct file *file, FILE *stream)
 
     if (n_written == file->content_size) return +0;
     else                                 return -1;
+}
+
+ssize_t file_size (FILE *stream)
+{
+    fseek (stream, 0, SEEK_END);
+    ssize_t file_len = ftell (stream);
+    fseek (stream, 0, SEEK_SET);
+
+    return file_len;
 }
 
 void free_file (struct file *file)
