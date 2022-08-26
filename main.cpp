@@ -20,7 +20,7 @@ int main (int argc, char *argv[])
 
     struct file_lines *lines = read_lines(in_stream);
 
-    if (lines == NULL) { printf ("Failed to read lines or OOM"); return -1; }
+    if (lines == NULL) { printf ("Failed to read lines or OOM\n"); return -1; }
 
     fprintf (out_stream, "=== Alphabetical order ===\n\n");
     alpha_file_lines_sort (lines);
@@ -35,4 +35,9 @@ int main (int argc, char *argv[])
 
     rev_alpha_file_lines_sort (lines);
     write_lines(lines, out_stream);
+
+    free_file_lines (lines);
+
+    fclose ( in_stream);
+    fclose (out_stream);
 }
