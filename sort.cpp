@@ -50,13 +50,31 @@ int rev_alpha_linecmp (const void *lhs, const void *rhs)
     return rev_alpha_strcmp(lhs_cast->content, lhs_cast->len, rhs_cast->content, rhs_cast->len);
 }
 
+char *skip_nalpha_cp1251 (const char *str)
+{
+    assert (str != NULL && "pointer can't be NULL");
+
+    while (str[0] != '\n' && !cp1251_isalpha (str[0])) str++;
+
+    return (char *) str;
+}
+
+size_t rev_skip_nalpha_cp1251 (const char *str, size_t len)
+{
+    assert (str != NULL && "pointer can't be NULL");
+
+    while (len > 0 && !cp1251_isalpha (str[len])) len--;
+
+    return len;
+}
+
 int alpha_strcmp (const char *lhs, const char *rhs)
 {
     assert (lhs != NULL && "pointer can't be NULL");
     assert (rhs != NULL && "pointer can't be NULL");
 
-    while (lhs[0] != '\n' && !cp1251_isalpha (lhs[0])) lhs++;
-    while (rhs[0] != '\n' && !cp1251_isalpha (rhs[0])) rhs++;
+    lhs = skip_nalpha_cp1251(lhs);
+    rhs = skip_nalpha_cp1251(rhs);
 
     while (
            lhs[0] != '\n' &&
@@ -67,8 +85,8 @@ int alpha_strcmp (const char *lhs, const char *rhs)
         lhs++;
         rhs++;
 
-        while (lhs[0] != '\n' && !cp1251_isalpha (lhs[0])) lhs++;
-        while (rhs[0] != '\n' && !cp1251_isalpha (rhs[0])) rhs++;
+        lhs = skip_nalpha_cp1251(lhs);
+        rhs = skip_nalpha_cp1251(rhs);
     }
 
     return chrcmp (lhs[0], rhs[0]);
@@ -83,8 +101,8 @@ int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_l
     l_len--; 
     r_len--;
 
-    while (l_len > 0 && !cp1251_isalpha (lhs[l_len])) l_len--;
-    while (r_len > 0 && !cp1251_isalpha (rhs[r_len])) r_len--;
+    l_len = rev_skip_nalpha_cp1251(lhs, l_len);
+    r_len = rev_skip_nalpha_cp1251(rhs, r_len);
 
     while (
            l_len > 0 &&
@@ -95,8 +113,8 @@ int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_l
         l_len--;
         r_len--;
 
-        while (l_len > 0 && !cp1251_isalpha (lhs[l_len])) l_len--;
-        while (r_len > 0 && !cp1251_isalpha (rhs[r_len])) r_len--;
+        l_len = rev_skip_nalpha_cp1251(lhs, l_len);
+        r_len = rev_skip_nalpha_cp1251(rhs, r_len);
     }
 
     return chrcmp (lhs[l_len], rhs[r_len]);
