@@ -44,32 +44,32 @@ struct file_lines *read_lines (FILE *stream)
     else               return  NULL; 
 }
  
-int insert_line (struct file_lines **lines, char *content, unsigned int number)
+int insert_line (struct file_lines **file, char *content, unsigned int number)
 {
-    assert (lines   != NULL && "pointer can't be NULL");
-    assert (*lines  != NULL && "pointer can't be NULL");
+    assert (file    != NULL && "pointer can't be NULL");
+    assert (*file   != NULL && "pointer can't be NULL");
     assert (content != NULL && "pointer can't be NULL");
 
-    struct file_lines *lines_v = *lines;
+    struct file_lines *file_v = *file;
 
-    if (lines_v->cnt == lines_v->alloc_cnt)
+    if (file_v->cnt == file_v->alloc_cnt)
     {
-        unsigned int alloc_cnt = lines_v->alloc_cnt;
-        struct line *lines_tmp = lines_v->lines;
+        unsigned int alloc_cnt = file_v->alloc_cnt;
+        struct line *lines_tmp = file_v->lines;
 
-        lines_tmp = (struct line *) realloc(lines_v->lines, alloc_cnt * 2 * sizeof (struct line));
+        lines_tmp = (struct line *) realloc(file_v->lines, alloc_cnt * 2 * sizeof (struct line));
 
         if (lines_tmp == NULL) return -1;
 
-        lines_v->lines      = lines_tmp;
-        lines_v->alloc_cnt *= 2;
+        file_v->lines      = lines_tmp;
+        file_v->alloc_cnt *= 2;
     }
 
-    lines_v->lines[lines_v->cnt].content = content;
-    lines_v->lines[lines_v->cnt].number  = number;
-    lines_v->cnt++;
+    file_v->lines[file_v->cnt].content = content;
+    file_v->lines[file_v->cnt].number  = number;
+    file_v->cnt++;
 
-    *lines = lines_v;
+    *file = file_v;
 
     return 0;
 }
