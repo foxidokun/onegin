@@ -27,13 +27,20 @@ int chrcmp (char lhs, char rhs);
 
 /**
  * @brief      Sort lines by their content
+ * 
+ * @param[in]   lines       Text to sort
+ * @param       sort_func   qsort API compatable sort function
  */
-void alpha_file_lines_sort (struct text *file);
+void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, int(*)(const void *, const void *)));
+
 
 /**
  * @brief      Sort lines by their reversed content
+ * 
+ * @param[in]   lines       Text to sort
+ * @param       sort_func   qsort API compatable sort function
  */
-void rev_alpha_file_lines_sort (struct text *file);
+void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, int(*)(const void *, const void *)));
 
 /**
  * @brief      Compare lines by their content
@@ -94,5 +101,17 @@ char *skip_nalpha_cp1251 (const char *str);
  * @return     Index of last alpha character
  */
 size_t rev_skip_nalpha_cp1251 (const char *str, size_t index);
+
+/// @brief custom qsort with standart qsort API-compatable realisation
+void cust_qsort (void *base, size_t count, size_t size, int(*comp)(const void *, const void *));
+
+/**
+ * @brief      Swap two object pointed by a and b with `size` size
+ *
+ * @param      a     
+ * @param      b     
+ * @param[in]  size  Objects size
+ */
+void swap (void *a, void *b, size_t size);
 
 #endif

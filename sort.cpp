@@ -14,18 +14,18 @@ static const int     RUS_MIN_VAL = 192;
 static const int     RUS_MAX_VAL = 255;
 
 
-void alpha_file_lines_sort (struct text *lines)
+void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, int(*)(const void *, const void *)))
 {
     assert (lines != NULL && "pointer can't be NULL");
 
-    qsort(lines->lines, lines->cnt, sizeof (struct line), alpha_linecmp);
+    sort_func(lines->lines, lines->cnt, sizeof (struct line), alpha_linecmp);
 }
 
-void rev_alpha_file_lines_sort (struct text *lines)
+void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, int(*)(const void *, const void *)))
 {
     assert (lines != NULL && "pointer can't be NULL");
 
-    qsort(lines->lines, lines->cnt, sizeof (struct line), rev_alpha_linecmp);
+    sort_func(lines->lines, lines->cnt, sizeof (struct line), rev_alpha_linecmp);
 }
 
 int alpha_linecmp (const void *lhs, const void *rhs)
@@ -134,4 +134,61 @@ int cp1251_isalpha (char c)
     return (u_c >=     RUS_MIN_VAL && u_c <=     RUS_MAX_VAL)
         || (u_c >=  ENG_UP_MIN_VAL && u_c <=  ENG_UP_MAX_VAL)
         || (u_c >= ENG_LOW_MIN_VAL && u_c <= ENG_LOW_MAX_VAL);
+}
+
+void swap (void *a, void *b, size_t size)
+{
+    assert (a != NULL && "pointer can't be NULL");
+    assert (b != NULL && "pointer can't be NULL");
+
+    char *c_a = (char *) a;
+    char *c_b = (char *) b;
+    char tmp  = 0;
+
+    do
+    {
+        tmp  = *c_a;
+        *c_a = *c_b;
+        *c_b = tmp;
+
+        c_a++;
+        c_b++;
+        size--;
+    } while  (size > 0);
+
+}
+
+void cust_qsort (void* base, size_t count, size_t size, int comp(void const*, void const*)) 
+{
+    assert (base != NULL && "pointer can't be NULL");
+
+    if (count < 2) return;
+
+    char *base_p = (char *) base;
+    size_t lo    = 0;
+    size_t hi    = count - 1;
+    size_t mi    = count / 2;
+
+    do {
+        while (comp(base_p + lo*size, base_p + mi*size) < 0 && lo < count) lo++;
+        while (comp(base_p + mi*size, base_p + hi*size) < 0 && hi > 0)     hi--;
+
+        if (lo <= hi) {
+            swap (base_p + lo*size, base_p + hi*size, size);
+            lo++;
+            hi--;
+        }
+
+    } while (lo <= hi);
+
+
+    if (hi > 0) {
+        cust_qsort (base, hi + 1, size, comp);
+    }
+
+    if (lo < count) {
+        cust_qsort (base_p + lo*size, count - lo, size, comp);
+    }
+
+    return;
 }
