@@ -37,4 +37,13 @@ int write_lines (const struct file *file, FILE *stream);
  */
 int write_buf (const struct file *file, FILE *stream);
 
+/**
+ * @brief      Return stream size in bytes
+ *
+ * @param      stream  Stream
+ *
+ * @return     File size in bytes or -1 if error occured
+ */
+ssize_t file_size (FILE *stream);
+
 #endif
