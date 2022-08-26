@@ -18,7 +18,7 @@ void alpha_file_lines_sort (struct text *lines)
 {
     assert (lines != NULL && "pointer can't be NULL");
 
-    qsort(lines->lines, lines->cnt, sizeof (struct text), alpha_linecmp);
+    qsort(lines->lines, lines->cnt, sizeof (struct line), alpha_linecmp);
 }
 
 void rev_alpha_file_lines_sort (struct text *lines)
@@ -54,7 +54,7 @@ char *skip_nalpha_cp1251 (const char *str)
 {
     assert (str != NULL && "pointer can't be NULL");
 
-    while (str[0] != '\n' && !cp1251_isalpha (str[0])) str++;
+    while (str[0] != '\0' && !cp1251_isalpha (str[0])) str++;
 
     return (char *) str;
 }
@@ -77,8 +77,8 @@ int alpha_strcmp (const char *lhs, const char *rhs)
     rhs = skip_nalpha_cp1251(rhs);
 
     while (
-           lhs[0] != '\n' &&
-           rhs[0] != '\n' &&
+           lhs[0] != '\0' &&
+           rhs[0] != '\0' &&
            lhs[0] == rhs[0]
            )
     {
