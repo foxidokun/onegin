@@ -78,4 +78,23 @@ int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_l
  */
 int cp1251_isalpha (char c);
 
+/**
+ * @brief      Skip non-alpha (CP1251) characters
+ *
+ * @param[in]  str   Null-terminated string
+ *
+ * @return     Pointer to first alpha character
+ */
+char *skip_nalpha_cp1251 (const char *str);
+
+/**
+ * @brief      Skip non-alpha (CP1251) characters in reverse direction
+ *
+ * @param[in]  str     The string
+ * @param[in]  index   Index of last character (len - 1)
+ *
+ * @return     Index of last alpha character
+ */
+size_t rev_skip_nalpha_cp1251 (const char *str, size_t index);
+
 #endif
