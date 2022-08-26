@@ -1,11 +1,12 @@
-#include "onegin.h"
 #include <stdio.h>
+#include <string.h>
+#include "onegin.h"
 #include "sort.h"
 #include "file.h"
 
 int main (int argc, char *argv[])
 {
-    if (argc != 3)
+    if (argc != 3 || (argc == 2 && strcmp (argv[1], "-h") == 0))
     {
         printf ("Onegin sorter\n");
         printf ("Usage: onegin <input file> <output file>\n");
