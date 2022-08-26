@@ -3,9 +3,9 @@
 #include <stdlib.h>
 
 /**
- * @brief      File lines number and content 
+ * @brief      File content 
  */
-struct file_lines
+struct file
 {
     char *content;
     struct line* lines;     /// Array of lines, but line::content is pointer to file_lines::content
