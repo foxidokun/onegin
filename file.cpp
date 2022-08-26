@@ -7,7 +7,8 @@
 
 
 // Минусы: двойной проход по буферу
-struct file_lines *read_lines (FILE *stream)
+// Плюсы:  ftell может быть UB на windows
+struct file *read_file (FILE *stream)
 {
     assert (stream != NULL && "pointer can't be NULL");
 
@@ -21,10 +22,10 @@ struct file_lines *read_lines (FILE *stream)
 
     unsigned int n_lines  = 0;
 
-    struct file_lines *lines = (struct file_lines *) calloc (1,        sizeof (struct file_lines));
-    lines->content           = (char *)              calloc (file_len, sizeof (char));
-    lines->content_size      = file_len;
-    char *content_p          = lines->content;
+    struct file *file  = (struct file *) calloc (1,        sizeof (struct file));
+    file->content      = (char *)        calloc (file_len, sizeof (char));
+    file->content_size = file_len;
+    char *content_p    = file->content;
 
     fread (content_p, sizeof (char), file_len, stream);
 
@@ -36,8 +37,8 @@ struct file_lines *read_lines (FILE *stream)
         }
     }
 
-    lines->lines = (struct line *) calloc (n_lines, sizeof (struct line));
-    lines->cnt   = n_lines;
+    file->lines = (struct line *) calloc (n_lines, sizeof (struct line));
+    file->cnt   = n_lines;
 
     unsigned int line_len = 0;
     unsigned int n_line   = 0;
@@ -49,8 +50,8 @@ struct file_lines *read_lines (FILE *stream)
 
         if (content_p[i] == '\n')
         {
-            lines->lines[n_line].content = line_start;
-            lines->lines[n_line].len     = line_len;
+            file->lines[n_line].content = line_start;
+            file->lines[n_line].len     = line_len;
 
             n_line++;
             line_start = content_p + i + 1;
@@ -58,11 +59,11 @@ struct file_lines *read_lines (FILE *stream)
         }
     }
 
-    if (ferror (stream)) return  NULL;
-    else                 return lines; 
+    if (ferror (stream)) return NULL;
+    else                 return file; 
 }
 
-int write_lines (const struct file_lines *file, FILE *stream)
+int write_lines (const struct file *file, FILE *stream)
 {
     assert (file   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
@@ -82,7 +83,7 @@ int write_lines (const struct file_lines *file, FILE *stream)
     return 0;
 }
 
-int write_buf (const struct file_lines *file, FILE *stream)
+int write_buf (const struct file *file, FILE *stream)
 {
     assert (file   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
@@ -93,7 +94,7 @@ int write_buf (const struct file_lines *file, FILE *stream)
     else                                 return -1;
 }
 
-void free_file_lines (struct file_lines *file)
+void free_file (struct file *file)
 {
     free (file->content);
     free (file->lines);

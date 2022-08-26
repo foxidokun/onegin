@@ -28,19 +28,14 @@ int alpha_strcmp (const char *lhs, const char *rhs);
 int chrcmp (char lhs, char rhs);
 
 /**
- * @brief      Sort lines by their number
- */
-void num_file_lines_sort (struct file_lines *lines);
-
-/**
  * @brief      Sort lines by their content
  */
-void alpha_file_lines_sort (struct file_lines *lines);
+void alpha_file_lines_sort (struct file *file);
 
 /**
  * @brief      Sort lines by their reversed content
  */
-void rev_alpha_file_lines_sort (struct file_lines *lines);
+void rev_alpha_file_lines_sort (struct file *file);
 
 /**
  * @brief      Compare lines by their numbers

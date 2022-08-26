@@ -19,22 +19,22 @@ int main (int argc, char *argv[])
     if (in_stream  == NULL) { printf ("Failed to open input file");  return -1; }
     if (out_stream == NULL) { printf ("Failed to open output file"); return -1; }
 
-    struct file_lines *lines = read_lines (in_stream);
+    struct file *file = read_file (in_stream);
 
-    if (lines == NULL) { printf ("Failed to read lines or OOM\n"); return -1; }
+    if (file == NULL) { printf ("Failed to read lines or OOM\n"); return -1; }
 
     fprintf (out_stream, "=== Alphabetical order ===\n\n");
-    alpha_file_lines_sort (lines);
-    write_lines (lines, out_stream);
+    alpha_file_lines_sort (file);
+    write_lines (file, out_stream);
 
     fprintf (out_stream, "\n=== Original order ===\n\n");
-    write_buf (lines, out_stream);
+    write_buf (file, out_stream);
 
     fprintf (out_stream, "\n=== Reverse order===\n\n");
-    rev_alpha_file_lines_sort (lines);
-    write_lines (lines, out_stream);
+    rev_alpha_file_lines_sort (file);
+    write_lines (file, out_stream);
 
-    free_file_lines (lines);
+    free_file (file);
 
     fclose ( in_stream);
     fclose (out_stream);

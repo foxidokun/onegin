@@ -14,12 +14,12 @@ static const int     RUS_MIN_VAL = 192;
 static const int     RUS_MAX_VAL = 255;
 
 
-void alpha_file_lines_sort (struct file_lines *lines)
+void alpha_file_lines_sort (struct file *lines)
 {
     qsort(lines->lines, lines->cnt, sizeof (struct line), (int (*)(const void *, const void *)) alpha_linecmp);
 }
 
-void rev_alpha_file_lines_sort (struct file_lines *lines)
+void rev_alpha_file_lines_sort (struct file *lines)
 {
     qsort(lines->lines, lines->cnt, sizeof (struct line), (int (*)(const void *, const void *)) rev_alpha_linecmp);
 }
