@@ -78,4 +78,13 @@ int rev_alpha_linecmp (const struct line *lhs, const struct line *rhs);
  */
 int rev_alpha_strcmp (const char *lhs, const char *rhs);
 
+/**
+ * @brief      isalpha for CP1251 encoding
+ *
+ * @param[in]  c     char
+ *
+ * @return     bool value
+ */
+int cp1251_isalpha (char c);
+
 #endif

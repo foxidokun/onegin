@@ -5,6 +5,11 @@
 #include "onegin.h"
 #include "sort.h"
 
+static const int RUSSIAN_MIN_VAL = 192;
+static const int ENGLISH_MIN_VAL =   1;
+static const int ENGLISH_MAX_VAL =  26;
+
+
 void num_file_lines_sort (struct file_lines *lines)
 {
     qsort(lines->lines, lines->cnt, sizeof (struct line), (int (*)(const void *, const void *)) num_linecmp);
@@ -51,8 +56,10 @@ int alpha_strcmp (const char *lhs, const char *rhs)
            lhs[0] == rhs[0]
            )
     {
-        while (!isalpha (lhs[0])) lhs++;
-        while (!isalpha (rhs[0])) rhs++;
+        lhs++;
+        rhs++;
+        while (lhs[0] != '\0' && !cp1251_isalpha (lhs[0])) lhs++;
+        while (rhs[0] != '\0' && !cp1251_isalpha (rhs[0])) rhs++;
     }
 
     return chrcmp (lhs[0], rhs[0]);
@@ -72,8 +79,8 @@ int rev_alpha_strcmp (const char *lhs, const char *rhs)
            lhs[l_cur] == rhs[r_cur]
            )
     {
-        while (!isalpha (lhs[l_cur])) l_cur--;
-        while (!isalpha (rhs[r_cur])) r_cur--;
+        while (!cp1251_isalpha (lhs[l_cur])) l_cur--;
+        while (!cp1251_isalpha (rhs[r_cur])) r_cur--;
     }
 
     return chrcmp (lhs[l_cur], rhs[r_cur]);
@@ -84,4 +91,10 @@ int chrcmp (char lhs, char rhs)
     if      (lhs < rhs) return -1;
     else if (lhs > rhs) return +1;
     else                return +0;
+}
+
+int cp1251_isalpha (char c)
+{
+    unsigned char u_c = (unsigned char) c;   
+    return u_c >= RUSSIAN_MIN_VAL || (u_c >= ENGLISH_MIN_VAL && u_c <= ENGLISH_MAX_VAL);
 }
