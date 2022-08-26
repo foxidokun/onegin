@@ -13,17 +13,6 @@
 struct file_lines *read_lines (FILE *stream);
 
 /**
- * @brief      Insert line with given content and number into file_lines struct
- *
- * @param      lines         Pointer to file lines to insert line to
- * @param[in]  content       Line content
- * @param[in]  number        Line number
- *
- * @return     Non-zero value on error
- */
-int insert_line (struct file_lines **lines, char *content, unsigned int number); 
-
-/**
  * @brief      Free memory, used by given file_lines struct
  */
 void free_file_lines (struct file_lines *f_lines);

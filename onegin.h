@@ -8,7 +8,7 @@
 struct file_lines
 {
     char *content;
-    struct line* lines;     /// Array of lines
+    struct line* lines;     /// Array of lines, but line::content is pointer to file_lines::content
     unsigned int cnt;       /// Number of lines
     size_t content_size;    /// Size of content
 };
@@ -18,8 +18,8 @@ struct file_lines
  */
 struct line
 {
-    char  *content;  ///Line content
-    size_t     len;   ///Line length
+    char  *content;   /// Line content ('\n' terminated)
+    size_t     len;   /// Line length
 };
 
 

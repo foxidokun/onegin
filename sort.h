@@ -9,12 +9,14 @@
  * @param[in]  lhs   The left hand side
  * @param[in]  rhs   The right hand side
  *
+ * @note Strings are '\n' terminated
+ *
  * @return     as in strcmp
  */
 int alpha_strcmp (const char *lhs, const char *rhs);
 
 /**
- * @brief      Comparetwo given chars
+ * @brief      Compare two given chars
  *
  * @note Considers that smaller characters have smalle char codes.
  * 
@@ -73,6 +75,8 @@ int rev_alpha_linecmp (const struct line *lhs, const struct line *rhs);
 /**
  * @brief      Compare reversed given strings only by alpha characters
  *
+ * @note Strings are '\n' terminated
+ * 
  * @param[in]  lhs   The left hand side
  * @param[in]  rhs   The right hand side
  *

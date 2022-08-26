@@ -1,13 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <assert.h>
 #include "onegin.h"
 #include "file.h"
 
-
-static const unsigned int LINES_CNT = 32;
 
 // Минусы: двойной проход по буферу
 struct file_lines *read_lines (FILE *stream)
@@ -27,8 +24,7 @@ struct file_lines *read_lines (FILE *stream)
     struct file_lines *lines = (struct file_lines *) calloc (1,        sizeof (struct file_lines));
     lines->content           = (char *)              calloc (file_len, sizeof (char));
     lines->content_size      = file_len;
-
-    char *content_p = lines->content;
+    char *content_p          = lines->content;
 
     fread (content_p, sizeof (char), file_len, stream);
 
