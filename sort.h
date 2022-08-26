@@ -1,6 +1,8 @@
 #ifndef SORT_H
 #define SORT_H
 
+#include <stdlib.h>
+
 /**
  * @brief      Compare given strings only by alpha characters
  *
@@ -76,7 +78,7 @@ int rev_alpha_linecmp (const struct line *lhs, const struct line *rhs);
  *
  * @return     as in strcmp
  */
-int rev_alpha_strcmp (const char *lhs, const char *rhs);
+int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_len);
 
 /**
  * @brief      isalpha for CP1251 encoding

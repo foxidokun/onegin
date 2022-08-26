@@ -1,14 +1,16 @@
 #ifndef ONEGIN_H
 #define ONEGIN_H
+#include <stdlib.h>
 
 /**
  * @brief      File lines number and content 
  */
 struct file_lines
 {
+    char *content;
     struct line* lines;     /// Array of lines
     unsigned int cnt;       /// Number of lines
-    unsigned int alloc_cnt; /// Allocated lines size
+    size_t content_size;    /// Size of content
 };
 
 /**
@@ -16,8 +18,8 @@ struct file_lines
  */
 struct line
 {
-    char        *content;  ///Line content
-    unsigned int number;   ///Line number
+    char  *content;  ///Line content
+    size_t     len;   ///Line length
 };
 
 

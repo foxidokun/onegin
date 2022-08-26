@@ -4,22 +4,13 @@
 #include "onegin.h"
 
 /**
- * @brief              Reads lines from strean
+ * @brief              Reads lines from stream
  *
  * @param[in]  stream  The stream to read data from
  *
  * @return             File lines in file_lines struct
  */
 struct file_lines *read_lines (FILE *stream);
-
-/**
- * @brief       Allocate & Initialize file_lines with given alloc_cnt
- * 
- * Tou HAVE TO call free_file_lines () to free memory used by this struct
- *
- * @return     Pointer to allocated and initialized struct
- */
-struct file_lines *create_file_lines (unsigned int n);
 
 /**
  * @brief      Insert line with given content and number into file_lines struct
@@ -46,5 +37,15 @@ void free_file_lines (struct file_lines *f_lines);
  * @return     Non-zero value on error
  */
 int write_lines (const struct file_lines *lines, FILE *stream);
+
+/**
+ * @brief      Write original buffer into stream
+ *
+ * @param[in]  lines   File lines
+ * @param      stream  The stream write lines to
+ *
+ * @return     Non-zero value on error
+ */
+int write_buf (const struct file_lines *lines, FILE *stream);
 
 #endif
