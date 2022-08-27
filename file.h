@@ -42,7 +42,7 @@ int write_buf (const struct text *text, FILE *stream);
  *
  * @param      stream  Stream
  *
- * @return     File size in bytes or -1 if error occured
+ * @return     File size in bytes or ERROR if error occured
  */
 ssize_t file_size (FILE *stream);
 

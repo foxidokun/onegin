@@ -30,8 +30,8 @@ int main (int argc, char *argv[])
     FILE *in_stream  = fopen (argv[1], "r");
     FILE *out_stream = fopen (argv[2], "w");
 
-    if (in_stream  == NULL) { printf ("Failed to open input file" ); return -1; }
-    if (out_stream == NULL) { printf ("Failed to open output file"); return -1; }
+    if (in_stream  == NULL) { printf ("Failed to open input file" ); return ERROR; }
+    if (out_stream == NULL) { printf ("Failed to open output file"); return ERROR; }
 
     struct text *file = read_text (in_stream);
     fclose (in_stream);

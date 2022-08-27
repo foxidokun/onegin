@@ -2,6 +2,8 @@
 #define ONEGIN_H
 #include <stdlib.h>
 
+const int ERROR = -1;
+
 /**
  * @brief      File content 
  */

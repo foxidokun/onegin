@@ -5,13 +5,12 @@
 #include "onegin.h"
 #include "file.h"
 
-
 struct text *read_text (FILE *stream)
 {
     assert (stream != NULL && "pointer can't be NULL");
 
     ssize_t file_len_tmp = file_size (stream);
-    if (file_len_tmp == -1) { return NULL; }
+    if (file_len_tmp == ERROR) { return NULL; }
 
     size_t file_len      = (size_t) file_len_tmp;
 
@@ -22,7 +21,7 @@ struct text *read_text (FILE *stream)
 
     fread (content_p, sizeof (char), file_len, stream);
     if (ferror (stream)) return NULL;
-    content_p[file_len] = '\0';
+    content_p[file_len]  = '\0';
 
     unsigned int n_lines = count_lines (content_p);
     file->lines          = (struct line *) calloc (n_lines, sizeof (struct line));
@@ -63,7 +62,7 @@ int write_buf (const struct text *text, FILE *stream)
     {
         if (fputs (content, stream) == EOF)
         {
-            return -1;
+            return ERROR;
         }
         putc ('\n', stream);
         
