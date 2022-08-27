@@ -7,9 +7,12 @@
 #ifdef TEST
 
 #include "test.h"
+#include <time.h>
 
 int main ()
 {
+    srand ((unsigned int) time (NULL));
+
     run_tests ();
 }
 
