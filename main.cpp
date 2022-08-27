@@ -4,6 +4,17 @@
 #include "sort.h"
 #include "file.h"
 
+#ifdef TEST
+
+#include "test.h"
+
+int main ()
+{
+    run_tests ();
+}
+
+#else
+
 int main (int argc, char *argv[])
 {
     if (argc != 3 || (argc == 2 && strcmp (argv[1], "-h") == 0))
@@ -37,6 +48,8 @@ int main (int argc, char *argv[])
 
     free_text (file);
     fclose (out_stream);
-    
+
     return 0;
 }
+
+#endif //TEST
