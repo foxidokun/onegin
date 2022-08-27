@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+typedef int (*comparator)(const void*, const void*);
+
 /**
  * @brief      Compare given strings only by alpha characters
  *
@@ -31,7 +33,7 @@ int chrcmp (char lhs, char rhs);
  * @param[in]   lines       Text to sort
  * @param       sort_func   qsort API compatable sort function
  */
-void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, int(*)(const void *, const void *)));
+void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator));
 
 
 /**
@@ -40,7 +42,7 @@ void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, 
  * @param[in]   lines       Text to sort
  * @param       sort_func   qsort API compatable sort function
  */
-void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, int(*)(const void *, const void *)));
+void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator));
 
 /**
  * @brief      Compare lines by their content
@@ -90,7 +92,9 @@ int cp1251_isalpha (char c);
  *
  * @return     Pointer to first alpha character
  */
-char *skip_nalpha_cp1251 (const char *str);
+const char *skip_nalpha_cp1251 (const char *str);
+char       *skip_nalpha_cp1251 (char *str);
+
 
 /**
  * @brief      Skip non-alpha (CP1251) characters in reverse direction
@@ -103,7 +107,7 @@ char *skip_nalpha_cp1251 (const char *str);
 size_t rev_skip_nalpha_cp1251 (const char *str, size_t index);
 
 /// @brief custom qsort with standart qsort API-compatable realisation
-void cust_qsort (void *base, size_t count, size_t size, int(*comp)(const void *, const void *));
+void cust_qsort (void *base, size_t count, size_t size, comparator comp);
 
 /**
  * @brief      Swap two object pointed by a and b with `size` size

@@ -14,14 +14,14 @@ static const int     RUS_MIN_VAL = 192;
 static const int     RUS_MAX_VAL = 255;
 
 
-void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, int(*)(const void *, const void *)))
+void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator))
 {
     assert (lines != NULL && "pointer can't be NULL");
 
     sort_func (lines->lines, lines->cnt, sizeof (struct line), alpha_linecmp);
 }
 
-void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, int(*)(const void *, const void *)))
+void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator))
 {
     assert (lines != NULL && "pointer can't be NULL");
 
@@ -50,13 +50,18 @@ int rev_alpha_linecmp (const void *lhs, const void *rhs)
     return rev_alpha_strcmp (lhs_cast->content, lhs_cast->len, rhs_cast->content, rhs_cast->len);
 }
 
-char *skip_nalpha_cp1251 (const char *str)
+char *skip_nalpha_cp1251 (char *str)
+{
+    return const_cast<char*>(skip_nalpha_cp1251((const char*) str));
+}
+
+const char *skip_nalpha_cp1251 (const char *str)
 {
     assert (str != NULL && "pointer can't be NULL");
 
     while (str[0] != '\0' && !cp1251_isalpha (str[0])) str++;
 
-    return (char *) str;
+    return str;
 }
 
 size_t rev_skip_nalpha_cp1251 (const char *str, size_t len)
@@ -158,7 +163,7 @@ void swap (void *a, void *b, size_t size)
 
 }
 
-void cust_qsort (void* base, size_t count, size_t size, int comp(void const*, void const*)) 
+void cust_qsort (void* base, size_t count, size_t size, comparator comp) 
 {
     assert (base != NULL && "pointer can't be NULL");
 
