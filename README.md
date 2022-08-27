@@ -19,6 +19,12 @@ And then
 make run # aka ./bin/onegin in.txt out.txt
 ```
 
+### How to run tests
+```bash
+make test
+```
+This command will run all tests and create a binary file ./bin/onegin_test which will do the same.
+
 ### How to generate docs
 ```bash
 cd onegin
