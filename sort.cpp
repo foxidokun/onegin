@@ -6,10 +6,10 @@
 #include "sort.h"
 
 /// Encoding ranges
-static const int  ENG_UP_MIN_VAL =  65;
-static const int  ENG_UP_MAX_VAL =  90;
-static const int ENG_LOW_MIN_VAL =  97;
-static const int ENG_LOW_MAX_VAL = 122;
+static const int  ENG_UP_MIN_VAL = 'A';
+static const int  ENG_UP_MAX_VAL = 'Z';
+static const int ENG_LOW_MIN_VAL = 'a';
+static const int ENG_LOW_MAX_VAL = 'z';
 static const int     RUS_MIN_VAL = 192;
 static const int     RUS_MAX_VAL = 255;
 
@@ -149,7 +149,7 @@ void swap (void *a, void *b, size_t size)
     {
         tmp  = *c_a;
         *c_a = *c_b;
-        *c_b = tmp;
+        *c_b =  tmp;
 
         c_a++;
         c_b++;
