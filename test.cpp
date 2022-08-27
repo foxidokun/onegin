@@ -25,7 +25,7 @@
 {                                                                               \
     if (!(cond))                                                                \
     {                                                                           \
-        printf (R "## Test Error: %s##\n" D, __func__);                        \
+        printf (R "## Test Error: %s##\n" D, __func__);                         \
         printf ("Condition check failed: %s\n", #cond);                         \
         printf ("Test location: File: %s Line: %d\n", __FILE__, __LINE__);      \
         return -1;                                                              \
@@ -37,21 +37,25 @@ static int intcmp (const void *lhs, const void *rhs);
 int test_cust_qsort ()
 {
     const int ARRAY_SIZE = 1024;
+    const int NUM_TEST   =  100;
     int *array = (int *) calloc (1024, sizeof (int));
 
-    for (int i = 0; i < ARRAY_SIZE; ++i)
+    for (int n = 0; n < NUM_TEST; ++n)
     {
-        array[i] = rand();
-    }
-
-    cust_qsort(array, ARRAY_SIZE, sizeof (int), intcmp);
-
-    for (int i = 1; i < ARRAY_SIZE; ++i)
-    {
-        if (array[i] < array[i-1])
+        for (int i = 0; i < ARRAY_SIZE; ++i)
         {
-            free (array);
-            return -1;
+            array[i] = rand();
+        }
+
+        cust_qsort(array, ARRAY_SIZE, sizeof (int), intcmp);
+
+        for (int i = 1; i < ARRAY_SIZE; ++i)
+        {
+            if (array[i] < array[i-1])
+            {
+                free (array);
+                return -1;
+            }
         }
     }
 
