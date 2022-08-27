@@ -27,10 +27,10 @@ test: $(BINDIR)
 .PHONY: clean
 
 $(ODIR):
-	mkdir $(ODIR)
+	mkdir -p $(ODIR)
 
 $(BINDIR):
-	mkdir $(BINDIR)
+	mkdir -p $(BINDIR)
 
 $(ODIR)/%.o: %.cpp $(DEPS)
 	g++ -c -o $@ $< $(CFLAGS)

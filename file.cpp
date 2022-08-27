@@ -109,7 +109,7 @@ void create_index (struct text *text)
     char *content         = text->content;
     char *line_start      = text->content;
 
-    for (unsigned int i = 0; i < file_len; ++i)
+    for (size_t i = 0; i < file_len; ++i)
     {
         line_len++;
 

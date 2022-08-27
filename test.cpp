@@ -38,7 +38,7 @@ int test_cust_qsort ()
 {
     const int ARRAY_SIZE = 1024;
     const int NUM_TEST   =  100;
-    int *array = (int *) calloc (1024, sizeof (int));
+    int *array = (int *) calloc (ARRAY_SIZE, sizeof (int));
 
     for (int n = 0; n < NUM_TEST; ++n)
     {
