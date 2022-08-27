@@ -161,8 +161,8 @@ void swap (void *a, void *b, size_t size)
         *c_a_big = *c_b_big;
         *c_b_big =  tmp_big;
 
-        c_a++;
-        c_b++;
+        c_a_big++;
+        c_b_big++;
         size -= sizeof (uint64_t);
     }
 
