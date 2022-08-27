@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <emmintrin.h>
 #include <stdint.h>
 #include "onegin.h"
 #include "sort.h"
@@ -142,16 +143,22 @@ int cp1251_isalpha (char c)
         || (u_c >= ENG_LOW_MIN_VAL && u_c <= ENG_LOW_MAX_VAL);
 }
 
+#ifdef __SSE2__
+    #define big_t __m128i
+#else
+    #define big_t uint64_t
+#endif
+
 void swap (void *a, void *b, size_t size)
 {
     assert (a != NULL && "pointer can't be NULL");
     assert (b != NULL && "pointer can't be NULL");
 
-    uint64_t *c_a_big = (uint64_t *) a;
-    uint64_t *c_b_big = (uint64_t *) b;
-    uint64_t  tmp_big = 0;
+    big_t *c_a_big = (big_t *) a;
+    big_t *c_b_big = (big_t *) b;
+    big_t  tmp_big = {0, 0};
 
-    while (size > sizeof (uint64_t))
+    while (size > sizeof (big_t))
     {
         tmp_big  = *c_a_big;
         *c_a_big = *c_b_big;
@@ -159,7 +166,7 @@ void swap (void *a, void *b, size_t size)
 
         c_a_big++;
         c_b_big++;
-        size -= sizeof (uint64_t);
+        size -= sizeof (big_t);
     }
 
     char *c_a = (char *) c_a_big;
