@@ -20,6 +20,7 @@ int main (int argc, char *argv[])
     if (out_stream == NULL) { printf ("Failed to open output file"); return -1; }
 
     struct text *file = read_text (in_stream);
+    fclose (in_stream);
 
     if (file == NULL) { printf ("Failed to read file or OOM\n"); return -1; }
 
@@ -35,7 +36,7 @@ int main (int argc, char *argv[])
     write_lines (file, out_stream);
 
     free_text (file);
-
-    fclose ( in_stream);
     fclose (out_stream);
+    
+    return 0;
 }

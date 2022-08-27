@@ -162,33 +162,39 @@ void cust_qsort (void* base, size_t count, size_t size, int comp(void const*, vo
 {
     assert (base != NULL && "pointer can't be NULL");
 
-    if (count < 2) return;
-
     char *base_p = (char *) base;
     size_t lo    = 0;
     size_t hi    = count - 1;
-    size_t mi    = count / 2;
+    size_t pi    = count / 2;
 
-    do {
-        while (comp(base_p + lo*size, base_p + mi*size) < 0 && lo < count) lo++;
-        while (comp(base_p + mi*size, base_p + hi*size) < 0 && hi > 0)     hi--;
+    while (hi > lo)
+    {
+        while (comp(base_p + lo*size, base_p + pi*size) < 0 && lo < count) lo++;
+        while (comp(base_p + pi*size, base_p + hi*size) < 0 && hi > 0)     hi--;
 
-        if (lo <= hi) {
+        if (lo <= hi)
+        {
             swap (base_p + lo*size, base_p + hi*size, size);
+
+            if      (pi == lo)  pi = hi;
+            else if (pi == hi)  pi = lo;
+
             lo++;
-            hi--;
-        }
 
-    } while (lo <= hi);
-
-
-    if (hi > 0) {
-        cust_qsort (base, hi + 1, size, comp);
+            if (hi > 0)
+            {
+                hi--;
+            }
+         }
     }
 
-    if (lo < count) {
+    if (hi > 0)
+    {
+        cust_qsort (base_p, hi + 1, size, comp);
+    }
+
+    if (lo < count - 1)
+    {
         cust_qsort (base_p + lo*size, count - lo, size, comp);
     }
-
-    return;
 }
