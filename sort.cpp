@@ -147,10 +147,6 @@ void swap (void *a, void *b, size_t size)
     assert (a != NULL && "pointer can't be NULL");
     assert (b != NULL && "pointer can't be NULL");
 
-    char *c_a = (char *) a;
-    char *c_b = (char *) b;
-    char  tmp = 0;
-
     uint64_t *c_a_big = (uint64_t *) a;
     uint64_t *c_b_big = (uint64_t *) b;
     uint64_t  tmp_big = 0;
@@ -165,6 +161,10 @@ void swap (void *a, void *b, size_t size)
         c_b_big++;
         size -= sizeof (uint64_t);
     }
+
+    char *c_a = (char *) c_a_big;
+    char *c_b = (char *) c_b_big;
+    char  tmp = 0;
 
     do
     {
