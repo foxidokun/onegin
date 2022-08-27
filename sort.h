@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-typedef int (*comparator)(const void*, const void*);
+typedef int (*comparator_f)(const void*, const void*);
 
 /**
  * @brief      Compare given strings only by alpha characters
@@ -33,7 +33,7 @@ int chrcmp (char lhs, char rhs);
  * @param[in]   lines       Text to sort
  * @param       sort_func   qsort API compatable sort function
  */
-void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator));
+void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator_f));
 
 
 /**
@@ -42,7 +42,7 @@ void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, 
  * @param[in]   lines       Text to sort
  * @param       sort_func   qsort API compatable sort function
  */
-void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator));
+void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator_f));
 
 /**
  * @brief      Compare lines by their content
@@ -107,7 +107,7 @@ char       *skip_nalpha_cp1251 (char *str);
 size_t rev_skip_nalpha_cp1251 (const char *str, size_t index);
 
 /// @brief custom qsort with standart qsort API-compatable realisation
-void cust_qsort (void *base, size_t count, size_t size, comparator comp);
+void cust_qsort (void *base, size_t count, size_t size, comparator_f comp);
 
 /**
  * @brief      Swap two object pointed by a and b with `size` size

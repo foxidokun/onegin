@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdint.h>
 #include "onegin.h"
 #include "sort.h"
 
@@ -14,18 +15,18 @@ static const int     RUS_MIN_VAL = 192;
 static const int     RUS_MAX_VAL = 255;
 
 
-void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator))
+void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator_f))
 {
     assert (lines != NULL && "pointer can't be NULL");
 
-    sort_func (lines->lines, lines->cnt, sizeof (struct line), alpha_linecmp);
+    sort_func (lines->lines, lines->n_lines, sizeof (struct line), alpha_linecmp);
 }
 
-void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator))
+void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator_f))
 {
     assert (lines != NULL && "pointer can't be NULL");
 
-    sort_func (lines->lines, lines->cnt, sizeof (struct line), rev_alpha_linecmp);
+    sort_func (lines->lines, lines->n_lines, sizeof (struct line), rev_alpha_linecmp);
 }
 
 int alpha_linecmp (const void *lhs, const void *rhs)
@@ -150,6 +151,21 @@ void swap (void *a, void *b, size_t size)
     char *c_b = (char *) b;
     char  tmp = 0;
 
+    uint64_t *c_a_big = (uint64_t *) a;
+    uint64_t *c_b_big = (uint64_t *) b;
+    uint64_t  tmp_big = 0;
+
+    while (size > sizeof (uint64_t))
+    {
+        tmp_big  = *c_a_big;
+        *c_a_big = *c_b_big;
+        *c_b_big =  tmp_big;
+
+        c_a++;
+        c_b++;
+        size -= sizeof (uint64_t);
+    }
+
     do
     {
         tmp  = *c_a;
@@ -163,7 +179,7 @@ void swap (void *a, void *b, size_t size)
 
 }
 
-void cust_qsort (void* base, size_t count, size_t size, comparator comp) 
+void cust_qsort (void* base, size_t count, size_t size, comparator_f comp) 
 {
     assert (base != NULL && "pointer can't be NULL");
 
