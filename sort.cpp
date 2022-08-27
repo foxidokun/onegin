@@ -180,11 +180,7 @@ void cust_qsort (void* base, size_t count, size_t size, int comp(void const*, vo
             else if (pi == hi)  pi = lo;
 
             lo++;
-
-            if (hi > 0)
-            {
-                hi--;
-            }
+            hi--;
          }
     }
 
