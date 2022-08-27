@@ -18,14 +18,14 @@ void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, 
 {
     assert (lines != NULL && "pointer can't be NULL");
 
-    sort_func(lines->lines, lines->cnt, sizeof (struct line), alpha_linecmp);
+    sort_func (lines->lines, lines->cnt, sizeof (struct line), alpha_linecmp);
 }
 
 void rev_alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, int(*)(const void *, const void *)))
 {
     assert (lines != NULL && "pointer can't be NULL");
 
-    sort_func(lines->lines, lines->cnt, sizeof (struct line), rev_alpha_linecmp);
+    sort_func (lines->lines, lines->cnt, sizeof (struct line), rev_alpha_linecmp);
 }
 
 int alpha_linecmp (const void *lhs, const void *rhs)
@@ -36,7 +36,7 @@ int alpha_linecmp (const void *lhs, const void *rhs)
     const struct line *lhs_cast = (const struct line *) lhs;
     const struct line *rhs_cast = (const struct line *) rhs;
 
-    return alpha_strcmp(lhs_cast->content, rhs_cast->content);
+    return alpha_strcmp (lhs_cast->content, rhs_cast->content);
 }
 
 int rev_alpha_linecmp (const void *lhs, const void *rhs)
@@ -47,7 +47,7 @@ int rev_alpha_linecmp (const void *lhs, const void *rhs)
     const struct line *lhs_cast = (const struct line *) lhs;
     const struct line *rhs_cast = (const struct line *) rhs;
 
-    return rev_alpha_strcmp(lhs_cast->content, lhs_cast->len, rhs_cast->content, rhs_cast->len);
+    return rev_alpha_strcmp (lhs_cast->content, lhs_cast->len, rhs_cast->content, rhs_cast->len);
 }
 
 char *skip_nalpha_cp1251 (const char *str)
@@ -73,8 +73,8 @@ int alpha_strcmp (const char *lhs, const char *rhs)
     assert (lhs != NULL && "pointer can't be NULL");
     assert (rhs != NULL && "pointer can't be NULL");
 
-    lhs = skip_nalpha_cp1251(lhs);
-    rhs = skip_nalpha_cp1251(rhs);
+    lhs = skip_nalpha_cp1251 (lhs);
+    rhs = skip_nalpha_cp1251 (rhs);
 
     while (
            lhs[0] != '\0' &&
@@ -85,8 +85,8 @@ int alpha_strcmp (const char *lhs, const char *rhs)
         lhs++;
         rhs++;
 
-        lhs = skip_nalpha_cp1251(lhs);
-        rhs = skip_nalpha_cp1251(rhs);
+        lhs = skip_nalpha_cp1251 (lhs);
+        rhs = skip_nalpha_cp1251 (rhs);
     }
 
     return chrcmp (lhs[0], rhs[0]);
@@ -101,8 +101,8 @@ int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_l
     l_len--; 
     r_len--;
 
-    l_len = rev_skip_nalpha_cp1251(lhs, l_len);
-    r_len = rev_skip_nalpha_cp1251(rhs, r_len);
+    l_len = rev_skip_nalpha_cp1251 (lhs, l_len);
+    r_len = rev_skip_nalpha_cp1251 (rhs, r_len);
 
     while (
            l_len > 0 &&
@@ -113,8 +113,8 @@ int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_l
         l_len--;
         r_len--;
 
-        l_len = rev_skip_nalpha_cp1251(lhs, l_len);
-        r_len = rev_skip_nalpha_cp1251(rhs, r_len);
+        l_len = rev_skip_nalpha_cp1251 (lhs, l_len);
+        r_len = rev_skip_nalpha_cp1251 (rhs, r_len);
     }
 
     return chrcmp (lhs[l_len], rhs[r_len]);
@@ -143,7 +143,7 @@ void swap (void *a, void *b, size_t size)
 
     char *c_a = (char *) a;
     char *c_b = (char *) b;
-    char tmp  = 0;
+    char  tmp = 0;
 
     do
     {
@@ -154,7 +154,7 @@ void swap (void *a, void *b, size_t size)
         c_a++;
         c_b++;
         size--;
-    } while  (size > 0);
+    } while (size > 0);
 
 }
 
@@ -169,8 +169,8 @@ void cust_qsort (void* base, size_t count, size_t size, int comp(void const*, vo
 
     while (hi > lo)
     {
-        while (comp(base_p + lo*size, base_p + pi*size) < 0 && lo < count) lo++;
-        while (comp(base_p + pi*size, base_p + hi*size) < 0 && hi > 0)     hi--;
+        while (comp (base_p + lo*size, base_p + pi*size) < 0 && lo < count) lo++;
+        while (comp (base_p + pi*size, base_p + hi*size) < 0 && hi > 0)     hi--;
 
         if (lo <= hi)
         {
