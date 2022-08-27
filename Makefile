@@ -21,8 +21,8 @@ run: $(BINDIR)/$(PROJ)
 clean:
 	$(SAFETY_COMMAND) && rm -rf $(ODIR) $(BINDIR)
 
-# test: 
-# 	mkdir -p bin && g++ -o $(BINDIR)/$(PROJ)_test main.cpp equation_solver.cpp test_equation_solver.cpp $(CFLAGS) -D TEST && $(BINDIR)/$(PROJ)_test
+test: $(BINDIR)
+	g++ -o $(BINDIR)/$(PROJ)_test file.cpp main.cpp sort.cpp test.cpp $(CFLAGS) -D TEST && $(BINDIR)/$(PROJ)_test
 
 .PHONY: clean
 
