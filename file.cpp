@@ -25,7 +25,7 @@ struct text *read_text (FILE *stream)
 
     unsigned int n_lines = count_lines (content_p);
     file->lines          = (struct line *) calloc (n_lines, sizeof (struct line));
-    file->cnt            = n_lines;
+    file->n_lines        = n_lines;
 
     create_index (file);
 
@@ -39,7 +39,7 @@ int write_lines (const struct text *text, FILE *stream)
 
     struct line *cur_line = NULL;
 
-    for (unsigned int i = 0; i < text->cnt; ++i)
+    for (unsigned int i = 0; i < text->n_lines; ++i)
     {
         cur_line = text->lines + i;
 
@@ -55,7 +55,7 @@ int write_buf (const struct text *text, FILE *stream)
     assert (text   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
 
-    unsigned int n_lines = text->cnt;
+    unsigned int n_lines = text->n_lines;
     char *content = text->content;
 
     for (unsigned int i = 0; i < n_lines; ++i)

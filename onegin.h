@@ -9,10 +9,10 @@ const int ERROR = -1;
  */
 struct text
 {
-    char *content       = NULL;  /// Content of file, but '\n' are replaced with '\0'
-    struct line* lines  = NULL;  /// Array of lines, but line::content is pointer to file_lines::content
-    unsigned int cnt    = 0;     /// Number of lines
-    size_t content_size = 0;     /// Size of content
+    char *content        = NULL;  /// Content of file, but '\n' are replaced with '\0'
+    struct line* lines   = NULL;  /// Array of lines, but line::content is pointer to file_lines::content
+    unsigned int n_lines = 0;     /// Number of lines
+    size_t content_size  = 0;     /// Size of content
 };
 
 /**
