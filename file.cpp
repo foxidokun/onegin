@@ -116,30 +116,23 @@ void create_index (struct text *text)
 {
     assert (text != NULL && "pointer can't be NULL");
 
-    size_t file_len = text->content_size;
-
-    unsigned int line_len = 0;
     unsigned int n_line   = 0;
-    char *content         = text->content;
     char *line_start      = text->content;
+    line *lines           = text->lines;
+    char *cur             = line_start;
 
-    for (size_t i = 0; i < file_len; ++i)
+    while ((cur = strchr (line_start, '\n')) != NULL)
     {
-        line_len++;
+        cur[0] = '\0';
+        cur++;  // Point to first character of next line
 
-        if (content[i] == '\n')
-        {
-            content[i] = '\0';
+        assert (lines != NULL && "pointer can't be NULL");
 
-            assert (text->lines != NULL && "pointer can't be NULL");
+        lines[n_line].content = line_start;
+        lines[n_line].len     = (size_t) (cur - line_start);
 
-            text->lines[n_line].content = line_start;
-            text->lines[n_line].len     = line_len;
-
-            n_line++;
-            line_start = content + i + 1;
-            line_len = 0;
-        }
+        n_line++;
+        line_start = cur;
     }
 }
 
