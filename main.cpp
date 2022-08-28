@@ -20,7 +20,7 @@ int main ()
 
 int main (int argc, char *argv[])
 {
-    const int POEM_NLINES = 16;
+    const int POEM_NLINES = 256;
     const int AFFINITY_RANGE = 15;
 
     srand ((unsigned int) time (NULL));
@@ -61,10 +61,10 @@ int main (int argc, char *argv[])
         return ERROR;
     }
 
-    printf ("Generated poem: \n\n");
+    fprintf (out_stream, "\n=== Generated poem: ===\n\n");
     for (int i = 0; i < POEM_NLINES; ++i)
     {
-        printf ("%s\n", poem[i]);
+        fprintf (out_stream, "%s\n", poem[i]);
     }
 
     free_text (file);

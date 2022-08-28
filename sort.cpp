@@ -20,6 +20,9 @@ static const int MIN_LEN = 8;
 /// Minimal percantage of alpha characters in valid string
 static const double MIN_ALPHA_PERSENTAGE = 0.8;
 
+/// Number of lines in with the same rhyme
+static const int BLOCK_SIZE = 4;
+
 //---------------------------------------------------------------------------------------------------------
 
 static int check_bit (uint8_t byte, char index);
@@ -29,7 +32,7 @@ static unsigned int min (unsigned int a, unsigned int b);
 static unsigned int max (unsigned int a, unsigned int b);
 
 static long int find_candidate (const struct text *text, unsigned int from,
-    unsigned int to, uint8_t *used, unsigned int cand_size);
+                                unsigned int to, uint8_t *used);
 
 //---------------------------------------------------------------------------------------------------------
 
@@ -257,7 +260,6 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
 
     line *lines          = text->lines;
     unsigned int n_lines = text->n_lines;
-    unsigned int choice_range = (unsigned int) 2 * range + 1;
 
     // Bool bits
     uint8_t *used        = (uint8_t *) calloc (n_lines/8 + 1, sizeof (uint8_t));
@@ -266,11 +268,6 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
 
     long int pos_tmp = 0;
 
-    __UNWRAP (pos_tmp = find_candidate (text, 0, n_lines, used, n_lines));
-    pos[0] = (unsigned int) pos_tmp;
-    __UNWRAP (pos_tmp = find_candidate (text, 0, n_lines, used, n_lines));
-    pos[1] = (unsigned int) pos_tmp;
-
     unsigned int cand_num    = 0;
     long int cand_num_tmp    = 0;
     unsigned char parity     = 0;
@@ -278,11 +275,19 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
 
     for (size_t n = 0; n < buf_size; ++n)
     {
+        if (n % BLOCK_SIZE == 0)
+        {
+            __UNWRAP (pos_tmp = find_candidate (text, 0, n_lines, used));
+            pos[0] = (unsigned int) pos_tmp;
+            __UNWRAP (pos_tmp = find_candidate (text, 0, n_lines, used));
+            pos[1] = (unsigned int) pos_tmp;
+        }
+
         parity = n % 2;
 
         // Find not used variables near pos[parity]
         cand_num_tmp = find_candidate (text, max (0, pos[parity] - range),
-                        min (n_lines, pos[parity] + range + 1), used, choice_range);
+                        min (n_lines, pos[parity] + range + 1), used);
 
         if (cand_num_tmp == ERROR)
         {   
@@ -313,12 +318,12 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
  * @return     (unsigned int) candidate index or ERROR on range
  */
 static long int find_candidate (const struct text *text, unsigned int from,
-    unsigned int to, uint8_t *used, unsigned int cand_size)
+                                unsigned int to, uint8_t *used)
 {
     assert (text != NULL       && "pointer can't be NULL");
     assert (from < to          && "range can't be empty");
 
-    unsigned int *cand_list = (unsigned int *) calloc (cand_size, sizeof (int));    
+    unsigned int *cand_list = (unsigned int *) calloc (from - to, sizeof (int));    
 
     line *lines           = text->lines;
     unsigned int cand_num = 0;
