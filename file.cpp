@@ -16,11 +16,14 @@ struct text *read_text (FILE *stream)
 
     struct text *file    = (struct text *) calloc (1,            sizeof (struct text));
     file->content        = (char *)        calloc (file_len + 1, sizeof (char));
-    file->content_size   = file_len;
+    file->content_size   = file_len + 1;
     char *content_p      = file->content;
 
-    fread (content_p, sizeof (char), file_len, stream);
-    if (ferror (stream)) return NULL;
+    if (fread (content_p, sizeof (char), file_len, stream) != file_len || ferror (stream))
+    {
+        return NULL;
+    }
+
     content_p[file_len]  = '\0';
 
     unsigned int n_lines = count_lines (content_p);
@@ -50,27 +53,25 @@ int write_lines (const struct text *text, FILE *stream)
     return 0;
 }
 
-// Возможно разумно внутренний цикл заменить на strchr + strcpy
 int write_buf (const struct text *text, FILE *stream)
 {
     assert (text   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
 
-    char *content = text->content;
-    size_t content_size = text->content_size;
+    char  *content       = text->content;
+    size_t content_size  = text->content_size;
+    unsigned int n_lines = text->n_lines;
 
     char *out_buf = (char *) calloc (content_size, sizeof (char));
+    char *buf_cur = out_buf;
 
-    for (size_t i = 0; i < content_size; ++i)
+    memcpy (out_buf, content, content_size);
+
+    for (unsigned int i = 0; i < n_lines; ++i)
     {
-        if (content[i] == '\0')
-        {
-            out_buf[i] = '\n';
-        }
-        else
-        {
-            out_buf[i] = content[i];
-        }
+        buf_cur = strchr (buf_cur, '\0');
+        buf_cur[0] = '\n';
+        buf_cur++;
     }
 
     if (fwrite (out_buf, sizeof (char), content_size, stream) != content_size)
@@ -86,9 +87,12 @@ ssize_t file_size (FILE *stream)
 {
     assert (stream != NULL && "pointer can't be NULL");
 
+    ssize_t init_pos = ftell (stream);
+    if (init_pos != 0) { return ERROR; }
+
     fseek (stream, 0, SEEK_END);
     ssize_t file_len = ftell (stream);
-    fseek (stream, 0, SEEK_SET);
+    fseek (stream, init_pos, SEEK_SET);
 
     return file_len;
 }
