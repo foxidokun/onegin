@@ -56,7 +56,6 @@ int write_buf (const struct text *text, FILE *stream)
     assert (text   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
 
-    unsigned int n_lines = text->n_lines;
     char *content = text->content;
     size_t content_size = text->content_size;
 
