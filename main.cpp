@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "onegin.h"
 #include "sort.h"
 #include "file.h"
@@ -7,7 +8,6 @@
 #ifdef TEST
 
 #include "test.h"
-#include <time.h>
 
 int main ()
 {
@@ -20,6 +20,11 @@ int main ()
 
 int main (int argc, char *argv[])
 {
+    const int POEM_NLINES = 16;
+    const int AFFINITY_RANGE = 15;
+
+    srand ((unsigned int) time (NULL));
+
     if (argc != 3 || (argc == 2 && strcmp (argv[1], "-h") == 0))
     {
         printf ("Onegin sorter\n");
@@ -49,7 +54,21 @@ int main (int argc, char *argv[])
     rev_alpha_file_lines_sort (file, cust_qsort);
     write_lines (file, out_stream);
 
+    char **poem = (char **) calloc (POEM_NLINES, sizeof (char*));
+    if (poem_generator(file, poem, POEM_NLINES, AFFINITY_RANGE) == ERROR)
+    {
+        printf ("Failed to generate poem\n");
+        return ERROR;
+    }
+
+    printf ("Generated poem: \n\n");
+    for (int i = 0; i < POEM_NLINES; ++i)
+    {
+        printf ("%s\n", poem[i]);
+    }
+
     free_text (file);
+    free (poem);
     fclose (out_stream);
 
     return 0;

@@ -2,6 +2,7 @@
 #define SORT_H
 
 #include <stdlib.h>
+#include <stdint.h>
 
 typedef int (*comparator_f)(const void*, const void*);
 
@@ -117,5 +118,22 @@ void cust_qsort (void *base, size_t count, size_t size, comparator_f comp);
  * @param[in]  size  Objects size
  */
 void swap (void *a, void *b, size_t size);
+
+/**
+ * @brief      Generates poem like text
+ *
+ * @note Requires initialized rand
+ * 
+ * @note buf_size must be greater than one
+ *
+ * @param[in]  text            text struct generate poem from
+ * @param      buf             Buffer for char *, pointing to poem lines
+ * @param[in]  buf_size        The buffer size
+ * @param[in]  range           Max distance between rhyming lines in reverse sort output
+ *
+ * @return     Non-zero value on error
+ */
+int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
+                        unsigned char range);
 
 #endif
