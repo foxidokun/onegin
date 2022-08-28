@@ -15,6 +15,14 @@ static const int ENG_LOW_MAX_VAL = 'z';
 static const int     RUS_MIN_VAL = 192;
 static const int     RUS_MAX_VAL = 255;
 
+static int check_bit (uint8_t byte, char index);
+static void set_bit (uint8_t *byte, char index, char value);
+static unsigned int min (unsigned int a, unsigned int b);
+static unsigned int max (unsigned int a, unsigned int b);
+static long int find_candidate (const struct text *text, unsigned int from,
+    unsigned int to, uint8_t *used, unsigned int cand_size);
+
+#define __UNWRAP(expr) { if ((expr) == ERROR) { return ERROR; } }
 
 void alpha_file_lines_sort (struct text *lines, void sort_func (void *, size_t, size_t, comparator_f))
 {
@@ -225,4 +233,164 @@ void cust_qsort (void* base, size_t count, size_t size, comparator_f comp)
     {
         cust_qsort (base_p + lo*size, count - lo, size, comp);
     }
+}
+
+/**
+ * @brief      Finds a good enough random string, that is not used yet and mark it as used
+ *
+ * @param[in]  text       Text
+ * @param[in]  from       Min index
+ * @param[in]  to         Max index
+ * @param      used       Used indicator (from poem_generator)
+ * @param[in]  cand_size  Max number of candidates
+ *
+ * @return     (unsigned int) candidate index or ERROR on range
+ */
+static long int find_candidate (const struct text *text, unsigned int from,
+    unsigned int to, uint8_t *used, unsigned int cand_size)
+{
+    assert (text != NULL       && "pointer can't be NULL");
+    assert (from < to          && "range can't be empty");
+
+    unsigned int *cand_list = (unsigned int *) calloc (cand_size, sizeof (int));    
+
+    line *lines           = text->lines;
+    unsigned int cand_num = 0;
+    size_t       line_len = 0;
+    size_t      alpha_cnt = 0;
+
+    const int MIN_LEN = 8;
+    const double MIN_ALPHA_PERSENTAGE = 0.8;
+
+
+    for (unsigned int n = from; n < to; ++n)
+    {
+        if (!check_bit (used[n/8], n%8))
+        {
+            //Skip not big enough lines
+            line_len = strlen (lines[n].content);
+            if (line_len < MIN_LEN) continue;
+
+            //Skip lines from non alpha characters mostly
+            alpha_cnt = 0;
+
+            for (size_t i = 0; i < line_len; ++i)
+            {
+                if (cp1251_isalpha(lines[n].content[i])) alpha_cnt++;
+            }
+
+            if (((long double) alpha_cnt) / line_len < MIN_ALPHA_PERSENTAGE) continue;
+
+            cand_list[cand_num] = n;
+            cand_num++;
+        }
+    }
+
+    if (cand_num == 0)
+    {
+        return ERROR;
+    }
+
+    unsigned int cand = cand_list[(unsigned int) rand() % cand_num];
+
+    set_bit (used + (cand/8), cand%8, 1);
+
+    free (cand_list);
+    
+    return cand;
+}
+
+int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
+                        unsigned char range)
+{
+    assert (text != NULL     && "pointer can't be NULL");
+    assert (buf  != NULL     && "pointer can't be NULL");
+    assert (buf_size >= 2    && "can't construct poem from less than two lines");
+
+    line *lines          = text->lines;
+    unsigned int n_lines = text->n_lines;
+    unsigned int choice_range = (unsigned int) 2 * range + 1;
+
+    // Bool bits
+    uint8_t *used        = (uint8_t *) calloc (n_lines/8 + 1, sizeof (uint8_t));
+
+    unsigned int pos[2]  = {};
+
+    long int tmp = 0;
+
+    __UNWRAP (tmp = find_candidate (text, 0, n_lines, used, n_lines));
+    pos[0] = (unsigned int) tmp;
+    __UNWRAP (tmp = find_candidate (text, 0, n_lines, used, n_lines));
+    pos[1] = (unsigned int) tmp;
+
+    unsigned int cand_num    = 0;
+    long int cand_num_tmp    = 0;
+    unsigned char parity     = 0;
+
+
+    for (size_t n = 0; n < buf_size; ++n)
+    {
+        parity = n % 2;
+
+        // Find not used variables near pos[parity]
+        cand_num_tmp = find_candidate (text, max (0, pos[parity] - range),
+                        min (n_lines, pos[parity] + range + 1), used, choice_range);
+
+        if (cand_num_tmp == ERROR)
+        {   
+            return ERROR;
+        }
+
+        cand_num = (unsigned int) cand_num_tmp;
+
+        // Select random candidate
+        pos[parity] = cand_num;
+        buf[n] = lines[cand_num].content;
+    }
+
+    free (used);
+
+    return 0;
+}
+
+/**
+ * @brief      Check nth bit in byte
+ *
+ * @param[in]  bitmap  Byte
+ * @param[in]  index   Bit index
+ *
+ * @return     True or false
+ */
+static int check_bit (uint8_t byte, char index)
+{
+    assert (index >= 0 && index < 8 && "index must be in [0, 8) range");
+
+    return (1<<index) & byte;
+}
+
+/**
+ * @brief      Set nth bit in byte to (bool) value
+ *
+ * @param      byte   Byte
+ * @param[in]  index  The index
+ * @param[in]  value  The value
+ */
+static void set_bit (uint8_t *byte, char index, char value)
+{
+    assert (index >= 0    && "index can't be less than zero");
+    assert (index  < 8    && "index can't be greater than zero");
+    assert (byte  != NULL && "pointer can't be NULL");
+
+    if (value) *byte |= (uint8_t) (1<<index);
+    else       *byte = (uint8_t) ~((~*byte) | (1<<index));
+}
+
+static unsigned int max (unsigned int a, unsigned int b)
+{
+    return (a > b) ? a : b;
+}
+
+static unsigned int min (unsigned int a, unsigned int b)
+{
+    return (a < b) ? a : b;
 }
