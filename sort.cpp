@@ -54,6 +54,8 @@ int rev_alpha_linecmp (const void *lhs, const void *rhs)
 
 char *skip_nalpha_cp1251 (char *str)
 {
+    assert (str != NULL && "pointer can't be NULL");
+
     return const_cast<char*>(skip_nalpha_cp1251((const char*) str));
 }
 
