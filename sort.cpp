@@ -144,9 +144,11 @@ int cp1251_isalpha (char c)
 }
 
 #ifdef __SSE2__
-    #define big_t __m128i
+    #define _big_t __m128i
+    #define _tmp_init_val {0, 0}
 #else
-    #define big_t uint64_t
+    #define _big_t uint64_t
+    #define _tmp_init_val 0
 #endif
 
 void swap (void *a, void *b, size_t size)
@@ -154,11 +156,11 @@ void swap (void *a, void *b, size_t size)
     assert (a != NULL && "pointer can't be NULL");
     assert (b != NULL && "pointer can't be NULL");
 
-    big_t *c_a_big = (big_t *) a;
-    big_t *c_b_big = (big_t *) b;
-    big_t  tmp_big = {0, 0};
+    _big_t *c_a_big = (_big_t *) a;
+    _big_t *c_b_big = (_big_t *) b;
+    _big_t  tmp_big = _tmp_init_val;
 
-    while (size > sizeof (big_t))
+    while (size >= sizeof (_big_t))
     {
         tmp_big  = *c_a_big;
         *c_a_big = *c_b_big;
@@ -166,14 +168,14 @@ void swap (void *a, void *b, size_t size)
 
         c_a_big++;
         c_b_big++;
-        size -= sizeof (big_t);
+        size -= sizeof (_big_t);
     }
 
     char *c_a = (char *) c_a_big;
     char *c_b = (char *) c_b_big;
     char  tmp = 0;
 
-    do
+    while (size > 0)
     {
         tmp  = *c_a;
         *c_a = *c_b;
@@ -182,7 +184,7 @@ void swap (void *a, void *b, size_t size)
         c_a++;
         c_b++;
         size--;
-    } while (size > 0);
+    }
 
 }
 
