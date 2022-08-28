@@ -50,6 +50,7 @@ int write_lines (const struct text *text, FILE *stream)
     return 0;
 }
 
+// Возможно разумно внутренний цикл заменить на strchr + strcpy
 int write_buf (const struct text *text, FILE *stream)
 {
     assert (text   != NULL && "pointer can't be NULL");
@@ -57,18 +58,28 @@ int write_buf (const struct text *text, FILE *stream)
 
     unsigned int n_lines = text->n_lines;
     char *content = text->content;
+    size_t content_size = text->content_size;
 
-    for (unsigned int i = 0; i < n_lines; ++i)
+    char *out_buf = (char *) calloc (content_size, sizeof (char));
+
+    for (size_t i = 0; i < content_size; ++i)
     {
-        if (fputs (content, stream) == EOF)
+        if (content[i] == '\0')
         {
-            return ERROR;
+            out_buf[i] = '\n';
         }
-        putc ('\n', stream);
-        
-        content = strchr (content, '\0') + 1;
+        else
+        {
+            out_buf[i] = content[i];
+        }
     }
 
+    if (fwrite (out_buf, sizeof (char), content_size, stream) != content_size)
+    {
+        return ERROR;
+    }
+
+    free (out_buf);
     return 0;
 }
 
