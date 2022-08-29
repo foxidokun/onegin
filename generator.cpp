@@ -1,20 +1,21 @@
 #include <assert.h>
 #include <string.h>
+#include <math.h>
 #include "onegin.h"
 #include "sort.h"
 #include "generator.h"
 
+// TODO
+// === 1 ===
+// Переписать prefixes на указатель, а не массивы.
+
+// Для отладки глубины hashmap
+#include <stdio.h>
+
 //---------------------------------------------------------------------------------------------------------
 
-/// Hashmap size in struct chain. Choosed for 32MiB hashmap size
-static unsigned int HASHMAP_SIZE = 4194304;
-/// Number of possible chars in stat::seq and stat::prop
-static unsigned int CHAR_CNT     = 256;
-
-//---------------------------------------------------------------------------------------------------------
-
-static int check_bit (uint8_t byte, char index);
-static void set_bit (uint8_t *byte, char index, char value);
+static int check_bit (uint8_t byte,  char index);
+static void  set_bit (uint8_t *byte, char index, char value);
 
 static long int min (long int a, long int b);
 static long int max (long int a, long int b);
@@ -22,28 +23,19 @@ static long int max (long int a, long int b);
 static long int find_candidate (const struct text *text, unsigned int from,
                                 unsigned int to, uint8_t *used);
 
+static char **allocate_prefixes (unsigned int max_len);
+static void shift_prefixes (char **prefixes, unsigned int max_len);
+static void initialize_prefixes (char **prefixes, const char *str, unsigned int max_len);
+static void update_stats (chain *chain, const char *const *prefixes, unsigned int max_len, unsigned char ch);
+static stat *initialize_stat (const char *prefix, unsigned int prefix_len);
+static char get_char (const chain *chain, const char *prefix, unsigned int prefix_size);
+
+static unsigned int gen_rand (unsigned int max);
+unsigned int hash(const char *str);
+
 //---------------------------------------------------------------------------------------------------------
 
 #define __UNWRAP(expr) { if ((expr) == ERROR) { return ERROR; } }
-
-//---------------------------------------------------------------------------------------------------------
-
-/**
- * @brief Markov chain prefix stats
- */
-struct stat
-{
-    char          *seq;    /// Array of next characters
-    unsigned int *prop;    /// Array of char counters 
-    unsigned int total;    /// Sum of counters
-    char       *prefix;    /// Prefix for this chars
-    stat         *next;    /// Ponter to next stat in hashmap
-};
-
-struct chain
-{
-    stat **hashmap;
-};
 
 //---------------------------------------------------------------------------------------------------------
 
@@ -71,8 +63,6 @@ void free_chain (chain *ch)
         {
             st_next = st->next;
 
-            free (st->seq);
-            free (st->prop);
             free (st->prefix);
             free (st);
 
@@ -84,20 +74,261 @@ void free_chain (chain *ch)
     free (ch);
 }
 
+void collect_stats (const text *text, chain *chain)
+{
+    assert (text != NULL && "pointer can't be NULL");
+
+    char  *content      = text->content;
+    size_t content_size = text->content_size;
+    char   ch           = '\0';
+
+    char **prefixes = allocate_prefixes (MAX_PREFIX_LEN);
+
+    initialize_prefixes (prefixes, content, MAX_PREFIX_LEN);
+
+    for (size_t pos = MAX_PREFIX_LEN; pos < content_size; ++pos)
+    {
+        ch = content[pos];
+        if (ch == '\0') ch = ' ';
+
+        if (!(ch == ' ' || cp1251_isalpha (ch))) continue;
+
+        update_stats (chain, prefixes, MAX_PREFIX_LEN, (unsigned char) ch);
+
+        shift_prefixes (prefixes, MAX_PREFIX_LEN);
+
+        for (unsigned int i = 0; i < MAX_PREFIX_LEN; ++i)
+        {
+            prefixes[i][MAX_PREFIX_LEN-1-i] = ch;
+        }
+    }
+
+    free (prefixes);
+}
+
 /**
- * @brief      Generates hash in range [0, HASHMAP_SIZE) with djb2 algorithm
+ * @brief      Update markov chain stats
+ *
+ * @param      chain           Chain
+ * @param[in]  prefixes        Prefixes
+ * @param[in]  max_len         The maximum prefix length
+ * @param[in]  ch              char
+ */
+static void update_stats (chain *chain, const char *const *prefixes, unsigned int max_len, unsigned char ch)
+{
+    assert (chain    != NULL && "pointer can't be NULL");
+    assert (prefixes != NULL && "pointer can't be NULL");
+
+    stat *st      = NULL;
+    stat *st_prev = NULL;
+
+    int __DEBUG_CNT = 0;
+
+    for (unsigned int i = 0; i < max_len; ++i)
+    {
+        st = chain->hashmap[hash (prefixes[i])];
+
+        st_prev = NULL;
+
+        __DEBUG_CNT = 0;
+
+        while (st != NULL && strncmp (st->prefix, prefixes[i], MAX_PREFIX_LEN) != 0)
+        {
+            st_prev = st;
+            st = st->next;
+
+            __DEBUG_CNT++;
+        }
+
+        printf ("Depth: %d\n", __DEBUG_CNT);
+
+        if (st == NULL)
+        {
+            st = initialize_stat (prefixes[i], max_len-i);
+
+            if (st_prev != NULL)
+            {
+                st_prev->next = st;
+            }
+        }
+        
+        st->prop[ch]++;
+        st->total++;
+    }
+}
+
+void generate_text (const chain *chain, char *buf, size_t buf_size, const char *seed)
+{
+    assert (buf  != NULL && "pointer can't be NULL");
+    assert (seed != NULL && "pointer can't be NULL");
+
+    size_t len = strlen (seed);
+
+    assert (len > MAX_PREFIX_LEN && "seed too small");
+    assert (buf_size >= len && "buf_size too small even for seed");
+
+    char **prefixes = allocate_prefixes (MAX_PREFIX_LEN);
+    initialize_prefixes(prefixes, seed, MAX_PREFIX_LEN);
+
+    strncpy (buf, seed, len);
+
+    size_t pos = len;
+    char   ch  = '\0';
+
+    for (; pos < buf_size; ++pos)
+    {
+        for (unsigned int p_len = MAX_PREFIX_LEN; p_len > 0; --p_len)
+        {
+            ch = get_char (chain, prefixes[MAX_PREFIX_LEN-p_len], p_len);
+            if (ch != '\0') break;
+        }
+
+        if (ch == '\0') { assert (0 && "Stats not initialized"); }
+
+        buf[pos] = ch;
+    }
+
+    free (prefixes);
+}
+
+/**
+ * @brief      Generate next character
+ *
+ * @param      chain        The chain
+ * @param[in]  prefix       The prefix
+ * @param[in]  prefix_size  The prefix size (>0)
+ *
+ * @return     Character or '\0' if no character can be generated
+ */
+static char get_char (const chain *chain, const char *prefix, unsigned int prefix_size)
+{
+    assert (chain  != NULL && "pointer can't be NULL");
+    assert (prefix != NULL && "pointer can't be NULL");
+
+    stat **map = chain->hashmap;
+    stat  *st  = map[hash (prefix)];
+
+    while (st != NULL && st->prefix_len != prefix_size &&
+          strncmp (st->prefix, prefix, prefix_size) != 0)
+    {
+        st = st->next;
+    }
+
+    if (st == NULL || st->total == 0) 
+    {
+        return '\0';
+    }
+
+    unsigned int rand = gen_rand (st->total);
+    unsigned int sum  = 0;
+    unsigned char ch  = 0;
+
+    for (ch = 0; sum < rand; ++ch)
+    {
+        sum += st->prop[ch];
+    }
+
+    return (char) ch;
+}
+
+/**
+ * @brief      Allocates stat and initializes it with zero values
+ *
+ * @return     Pointer to allcoated stat
+ */
+static stat *initialize_stat (const char *prefix, unsigned int prefix_len)
+{
+    assert (prefix != NULL && "pointer can't be NULL");
+
+    stat *st   = (stat *) calloc (1, sizeof (stat));
+
+    st->prefix     = (char *) calloc (prefix_len, sizeof (char));
+    st->total      = 0;
+    st->next       = NULL;
+    st->prefix_len = prefix_len;
+
+    memcpy (st->prefix, prefix, prefix_len);
+
+    return st;
+}
+
+/**
+ * @brief      Initializes the prefixes with given str 
+ *
+ * @param      prefixes  Prefixes
+ * @param[in]  str       String
+ * @param[in]  max_len   The maximum prefix length
+ */
+static void initialize_prefixes (char **prefixes, const char *str, unsigned int max_len)
+{
+    assert (str      != NULL && "pointer can't be NULL");
+    assert (prefixes != NULL && "pointer can't be NULL");
+
+    for (unsigned int n = 0; n < max_len; ++n)
+    {
+        memcpy (prefixes[n], str, max_len-n);
+    }
+}
+
+/**
+ * @brief      Shifts prefixes
+ *
+ * prefixes[i][0] = prefixes[i][1] and so on
+ *
+ * @param      prefixes  Prefixes
+ * @param      max_len   Max prefix len
+ */
+static void shift_prefixes (char **prefixes, unsigned int max_len)
+{
+    assert (prefixes != NULL && "pointer can't be NULL");
+
+    for (unsigned int n = 0; n < max_len; ++n)
+    {
+        assert (prefixes[n] != NULL && "pointer can't be NULL");
+
+        for (unsigned int pos = 0; pos < max_len - 1; ++pos)
+        {
+            prefixes[n][pos] = prefixes[n][pos+1];
+        }
+    }
+}
+
+/**
+ * @brief      Allocates 2D array of prefixes in single chunk (2 callocs)
+ *
+ * @param[in]  max_len  
+ *
+ * @return     Pointer to 2D array, where len (return[0]) == max_len, len (return[i]) == len (return[i-1])
+ */
+static char **allocate_prefixes (unsigned int max_len)
+{
+    unsigned int array_size = max_len * (max_len + 1) / 2;
+
+    char **prefixes = (char **) calloc (max_len,    sizeof (char *));
+    prefixes[0]     = (char *)  calloc (array_size, sizeof (char));
+
+    for (unsigned int i = 1; i < max_len; ++i)
+    {
+        prefixes[i] = prefixes[i-1] + (max_len - i);
+    }
+
+    return prefixes;
+}
+
+/**
+ * @brief      Generates hash in range [0, HASHMAP_SIZE) with modified djb2 algorithm
  *
  * @param      str   The string
  *
  * @return     Hash
  */
-unsigned int hash(const unsigned char *str)
+unsigned int hash(const char *str)
 {
-    unsigned int hash = 5381;
+    unsigned long hash = 5381;
     int c;
 
     while ((c = *str++) != '\0')
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+        hash = ((hash << 5) + hash) + (unsigned int) c; /* hash * 33 + c */
 
     return hash % HASHMAP_SIZE;
 }
@@ -260,4 +491,18 @@ static long int max (long int a, long int b)
 static long int min (long int a, long int b)
 {
     return (a < b) ? a : b;
+}
+
+/**
+ * @brief      Generate random unsgined int value in [0, max) range 
+ *
+ * @note Requires initialised rand
+ * 
+ * @param[in]  max
+ *
+ * @return     Rand value
+ */
+static unsigned int gen_rand (unsigned int max)
+{
+    return (unsigned int) round (rand () * ((double) max) / RAND_MAX);
 }
