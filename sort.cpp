@@ -28,8 +28,8 @@ static const int BLOCK_SIZE = 4;
 static int check_bit (uint8_t byte, char index);
 static void set_bit (uint8_t *byte, char index, char value);
 
-static unsigned int min (unsigned int a, unsigned int b);
-static unsigned int max (unsigned int a, unsigned int b);
+static long int min (long int a, long int b);
+static long int max (long int a, long int b);
 
 static long int find_candidate (const struct text *text, unsigned int from,
                                 unsigned int to, uint8_t *used);
@@ -286,8 +286,8 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
         parity = n % 2;
 
         // Find not used variables near pos[parity]
-        cand_num_tmp = find_candidate (text, max (0, pos[parity] - range),
-                        min (n_lines, pos[parity] + range + 1), used);
+        cand_num_tmp = find_candidate (text, (unsigned int) max (0, ((long int) pos[parity]) - range),
+                        (unsigned int) min (n_lines, ((long int) pos[parity]) + range + 1), used);
 
         if (cand_num_tmp == ERROR)
         {   
@@ -399,12 +399,12 @@ static void set_bit (uint8_t *byte, char index, char value)
     else       *byte =  (uint8_t) ~((~*byte) | (1<<index));
 }
 
-static unsigned int max (unsigned int a, unsigned int b)
+static long int max (long int a, long int b)
 {
     return (a > b) ? a : b;
 }
 
-static unsigned int min (unsigned int a, unsigned int b)
+static long int min (long int a, long int b)
 {
     return (a < b) ? a : b;
 }
