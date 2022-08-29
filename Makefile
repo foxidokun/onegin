@@ -3,7 +3,7 @@ BINDIR = bin
 ODIR = obj
 
 _DEPS = onegin.h file.h sort.h
-DEPS = $(patsubst %,.,$(_DEPS))
+DEPS = $(patsubst %,./%,$(_DEPS))
 
 _OBJ = file.o main.o sort.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -12,7 +12,7 @@ CFLAGS = -D _DEBUG -ggdb3 -std=c++20 -O0 -Wall -Wextra -Weffc++ -Waggressive-loo
 
 SAFETY_COMMAND = set -Eeuf -o pipefail && set -x
 
-$(BINDIR)/$(PROJ): $(ODIR) $(BINDIR) $(OBJ)
+$(BINDIR)/$(PROJ): $(ODIR) $(BINDIR) $(OBJ) $(DEPS)
 	g++ -o $(BINDIR)/$(PROJ) $(OBJ) $(CFLAGS)
 
 run: $(BINDIR)/$(PROJ)
