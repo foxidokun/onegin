@@ -39,7 +39,7 @@ int main (int argc, char *argv[])
     if (in_stream  == NULL) { printf ("Failed to open input file" ); return ERROR; }
     if (out_stream == NULL) { printf ("Failed to open output file"); return ERROR; }
 
-    struct text *file = read_text (in_stream);
+    struct text *file   = read_text (in_stream);
     fclose (in_stream);
 
     if (file == NULL) { printf ("Failed to read file or OOM\n"); return -1; }
@@ -68,8 +68,20 @@ int main (int argc, char *argv[])
         fprintf (out_stream, "%s\n", poem[i]);
     }
 
-    free_text (file);
+    struct chain *chain = create_chain();
+
+    collect_stats(file, chain);
+
+    char *buf = (char *) calloc (228, sizeof (char));
+    generate_text(chain, buf, 228, "Пиво");
+
+    fprintf (out_stream, "\n");
+    fwrite(buf, 1, 228, out_stream);
+
+    free_text  (file);
+    free_chain (chain);
     free (poem);
+    free (buf);
     fclose (out_stream);
 
     return 0;
