@@ -4,6 +4,7 @@
 #include "onegin.h"
 #include "sort.h"
 #include "file.h"
+#include "generator.h"
 
 #ifdef TEST
 
