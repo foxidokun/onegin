@@ -323,7 +323,7 @@ static long int find_candidate (const struct text *text, unsigned int from,
     assert (text != NULL       && "pointer can't be NULL");
     assert (from < to          && "range can't be empty");
 
-    unsigned int *cand_list = (unsigned int *) calloc (from - to, sizeof (int));    
+    unsigned int *cand_list = (unsigned int *) calloc (to - from, sizeof (int));    
 
     line *lines           = text->lines;
     unsigned int cand_num = 0;
