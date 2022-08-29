@@ -73,7 +73,7 @@ int main (int argc, char *argv[])
     collect_stats(file, chain);
 
     char *buf = (char *) calloc (228, sizeof (char));
-    generate_text(chain, buf, 228, "Пиво");
+    generate_text(chain, buf, 228, "XXX");
 
     fprintf (out_stream, "\n");
     fwrite(buf, 1, 228, out_stream);

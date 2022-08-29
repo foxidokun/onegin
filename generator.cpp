@@ -5,10 +5,6 @@
 #include "sort.h"
 #include "generator.h"
 
-// TODO
-// === 1 ===
-// Переписать prefixes на указатель, а не массивы.
-
 // Для отладки глубины hashmap
 #include <stdio.h>
 
@@ -124,7 +120,7 @@ static void update_stats (chain *chain, const char *const *prefixes, unsigned in
 
     int __DEBUG_CNT = 0;
 
-    for (unsigned int i = 0; i < max_len; ++i)
+    for (unsigned int i = 0; i <= max_len; ++i)
     {
         st = chain->hashmap[hash (prefixes[i])];
 
@@ -132,7 +128,7 @@ static void update_stats (chain *chain, const char *const *prefixes, unsigned in
 
         __DEBUG_CNT = 0;
 
-        while (st != NULL && strncmp (st->prefix, prefixes[i], MAX_PREFIX_LEN) != 0)
+        while (st != NULL && strncmp (st->prefix, prefixes[i], max_len-i) != 0)
         {
             st_prev = st;
             st = st->next;
@@ -141,6 +137,7 @@ static void update_stats (chain *chain, const char *const *prefixes, unsigned in
         }
 
         printf ("Depth: %d\n", __DEBUG_CNT);
+        __DEBUG_CNT = 0;
 
         if (st == NULL)
         {
@@ -150,10 +147,15 @@ static void update_stats (chain *chain, const char *const *prefixes, unsigned in
             {
                 st_prev->next = st;
             }
+            else 
+            {
+                chain->hashmap[hash (prefixes[i])] = st;
+            }
         }
         
         st->prop[ch]++;
         st->total++;
+
     }
 }
 
@@ -164,7 +166,7 @@ void generate_text (const chain *chain, char *buf, size_t buf_size, const char *
 
     size_t len = strlen (seed);
 
-    assert (len > MAX_PREFIX_LEN && "seed too small");
+    assert (len >= MAX_PREFIX_LEN && "seed too small");
     assert (buf_size >= len && "buf_size too small even for seed");
 
     char **prefixes = allocate_prefixes (MAX_PREFIX_LEN);
@@ -177,9 +179,9 @@ void generate_text (const chain *chain, char *buf, size_t buf_size, const char *
 
     for (; pos < buf_size; ++pos)
     {
-        for (unsigned int p_len = MAX_PREFIX_LEN; p_len > 0; --p_len)
+        for (long int p_len = MAX_PREFIX_LEN; p_len >= 0; --p_len)
         {
-            ch = get_char (chain, prefixes[MAX_PREFIX_LEN-p_len], p_len);
+            ch = get_char (chain, prefixes[MAX_PREFIX_LEN-p_len], (unsigned int) p_len);
             if (ch != '\0') break;
         }
 
@@ -304,10 +306,10 @@ static char **allocate_prefixes (unsigned int max_len)
 {
     unsigned int array_size = max_len * (max_len + 1) / 2;
 
-    char **prefixes = (char **) calloc (max_len,    sizeof (char *));
+    char **prefixes = (char **) calloc (max_len+1,  sizeof (char *));
     prefixes[0]     = (char *)  calloc (array_size, sizeof (char));
 
-    for (unsigned int i = 1; i < max_len; ++i)
+    for (unsigned int i = 1; i <= max_len; ++i)
     {
         prefixes[i] = prefixes[i-1] + (max_len - i);
     }
