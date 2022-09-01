@@ -2,7 +2,7 @@ PROJ = onegin
 BINDIR = bin
 ODIR = obj
 
-_DEPS = onegin.h file.h sort.h generator.h
+_DEPS = onegin.h file.h sort.h generator.h bits.h
 DEPS = $(patsubst %,./%,$(_DEPS))
 
 _OBJ = file.o main.o sort.o generator.o

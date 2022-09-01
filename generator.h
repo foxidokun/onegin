@@ -17,7 +17,7 @@ static const unsigned int HASHMAP_SIZE   = 4194304;
 /// Number of possible chars in stat::seq and stat::prop
 static const unsigned int CHAR_CNT       = 256;
 /// Max len of prefix in stat::prefix
-static const unsigned int MAX_PREFIX_LEN = 3;
+static const unsigned int MAX_PREFIX_LEN = 5;
 
 //---------------------------------------------------------------------------------------------------------
 
