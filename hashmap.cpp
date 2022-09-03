@@ -101,7 +101,7 @@ int hashmap_insert (hashmap *map, const void *key, const void *value)
     return 0;
 }
 
-const void *hashmap_get (const hashmap *map, const void *key)
+void *hashmap_get (const hashmap *map, const void *key)
 {
     assert (map != NULL && "pointer can't be NULL");
     assert (key != NULL && "pointer can't be NULL");
@@ -122,4 +122,18 @@ const void *hashmap_get (const hashmap *map, const void *key)
     }
 
     return NULL;
+}
+
+void hashmap_forall (hashmap *map, void func (void *))
+{
+    assert (map  != NULL && "pointer can't be NULL");
+    assert (func != NULL && "pointer can't be NULL");
+
+    for (size_t id = 0; id < map->allocated; ++id)
+    {
+        if (check_bit (map->flags, id))
+        {
+            func ((char *) map->values + id*map->val_size);
+        }
+    }
 }
