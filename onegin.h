@@ -4,8 +4,9 @@
 
 const int ERROR = -1;
 
-#define _UNWRAP_NULL(cond) { if ((cond) == NULL) { return NULL; } }
-#define _UNWRAP_ERR(expr) { if ((expr) == ERROR) { return ERROR; } }
+#define _UNWRAP_NULL(cond)     { if ((cond) == NULL)  { return NULL;  } }
+#define _UNWRAP_NULL_ERR(cond) { if ((cond) == NULL)  { return ERROR; } }
+#define _UNWRAP_ERR(expr)      { if ((expr) == ERROR) { return ERROR; } }
 
 
 /**

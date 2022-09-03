@@ -5,6 +5,7 @@
 #include "sort.h"
 #include "generator.h"
 #include "bits.h"
+#include "prefixes.h"
 
 //---------------------------------------------------------------------------------------------------------
 
@@ -14,7 +15,89 @@ static long int find_candidate (const struct text *text, unsigned int from,
 static long int min (long int a, long int b);
 static long int max (long int a, long int b);
 
+static long unsigned int strhash (const void *str);
+static               int keycmp  (const void *lhs, const void *rhs);
+
 //---------------------------------------------------------------------------------------------------------
+
+chain *create_chain (size_t max_prefix_len)
+{
+    chain *ch = (chain *) calloc (1, sizeof (struct chain));
+    _UNWRAP_NULL (ch);
+
+    ch->map   = hashmap_create (NPREFIXES, (max_prefix_len + 1)*sizeof (char),
+                                sizeof (stat *), strhash, keycmp);
+    _UNWRAP_NULL (ch->map);
+
+    ch->max_prefix_len = max_prefix_len;
+
+    return ch;
+}
+
+void free_chain (chain *ch)
+{
+    assert (ch != NULL && "pointer can't be NULL");
+
+    hashmap_forall (ch->map, free); // Free all allocated stat structers
+    hashmap_free   (ch->map);
+    free (ch);
+}
+
+int collect_stats (const text *text, chain *ch)
+{
+    assert (text != NULL && "pointer can't be NULL");
+    assert (ch   != NULL && "pointer can't be NULL");
+
+    char  *content        = text->content;
+    line  *lines          = text->lines;
+    size_t max_prefix_len = ch->max_prefix_len;
+
+    unsigned int n_line = 0;
+    while (n_line < text->n_lines && strlen (lines[n_line].content) < max_prefix_len)
+    {
+        n_line++;
+    }
+    if (n_line == text->n_lines) return ERROR;
+
+    prefixes *pr = create_prefixes (max_prefix_len, lines[n_line].content);
+    _UNWRAP_NULL_ERR (pr);
+
+    char next_char = '\0';
+    stat *st = NULL;
+
+    // lines[n_line].content always > content
+    for (size_t i = (size_t) (lines[n_line].content - content) + max_prefix_len;
+                i < text->content_size; ++i)
+    {
+        next_char = text->content[i];
+        if (next_char == '\0') next_char = ' ';
+
+        for (size_t p_len = 0; p_len <= max_prefix_len; ++p_len)
+        {
+            st = (stat *) hashmap_get (ch->map, get_prefix (pr, p_len));
+
+            if (st == NULL)
+            {
+                st = (stat *) calloc (1, sizeof (stat));
+                _UNWRAP_NULL_ERR (st);
+
+                if (hashmap_insert (ch->map, get_prefix (pr, p_len), st) == ERROR)
+                {
+                    hashmap *new_map = hashmap_resize(ch->map, ch->map->allocated * 2);
+                    _UNWRAP_NULL_ERR (new_map);
+                    ch->map = new_map;
+                }
+            }
+
+            st->total++;
+            st->char_cnt[(unsigned char) next_char]++;
+        }
+
+        update_prefixes (pr, text->content[i]);
+    }
+
+    return 0;
+}
 
 int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
                         unsigned char range)
@@ -62,7 +145,7 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
 
         // Select random candidate
         pos[parity] = cand_num;
-        buf[n] = lines[cand_num].content;
+        buf[n]      = lines[cand_num].content;
     }
 
     free_bitflags (used);
@@ -139,4 +222,22 @@ static long int max (long int a, long int b)
 static long int min (long int a, long int b)
 {
     return (a < b) ? a : b;
+}
+
+static long unsigned int strhash (const void *str)
+{
+    const unsigned char *str_c = (const unsigned char *) str;
+
+    unsigned long hash = 5381;
+    unsigned int c;
+
+    while ((c = *str_c++) != 0)
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash;
+}
+
+static int keycmp  (const void *lhs, const void *rhs)
+{
+    return strcmp ((const char *) lhs, (const char *) rhs);
 }
