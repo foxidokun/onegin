@@ -7,3 +7,5 @@ tmp.txt
 docs/
 report*
 out.txt
+*.log
+*.bak

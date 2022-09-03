@@ -75,7 +75,8 @@ int hashmap_insert (hashmap *map, const void *key, const void *value)
 
     size_t id = map->hash (key) % map->allocated;
 
-    if (check_bit (map->flags, id))
+    // ID already in use with different key
+    if (check_bit (map->flags, id) && map->comp (key, (char *) map->keys + id*map->key_size))
     {
         ssize_t id_tmp = bit_find_value (map->flags, 0);
         assert (id_tmp != ERROR && "Used < allocated, but all cells are occupied");
@@ -86,8 +87,8 @@ int hashmap_insert (hashmap *map, const void *key, const void *value)
     set_bit_true (map->flags, id);
     map->used++;
 
-    memcpy (map->keys,   key,   map->key_size);
-    memcpy (map->values, value, map->val_size);
+    memcpy ((char *) map->keys + id*map->key_size,   key,   map->key_size);
+    memcpy ((char *) map->values + id*map->val_size, value, map->val_size);
 
     return 0;
 }
