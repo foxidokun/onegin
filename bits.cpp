@@ -11,7 +11,7 @@ bool check_bit (const bitflags *flags, size_t index)
     unsigned char nbit = index & (NUM_BIT_IN_WORD - 1); // index % 64
     index = index >> EXP_BIT_IN_WORD; // index = index / 64
 
-    return (1<<nbit) & flags->words[index] ? 1 : 0;
+    return (1lu<<nbit) & flags->words[index] ? 1 : 0;
 }
 
 void set_bit_true (bitflags *flags, size_t index)
@@ -19,10 +19,10 @@ void set_bit_true (bitflags *flags, size_t index)
     assert (flags != NULL && "pointer can't be NULL");
 
 
-    unsigned char nbit = index & NUM_BIT_IN_WORD; // index % 64
+    unsigned char nbit = index & (NUM_BIT_IN_WORD-1); // index % 64
     index >>= EXP_BIT_IN_WORD; // index = index / 64
 
-    flags->words[index] |= (1u<<nbit);
+    flags->words[index] |= (1lu<<nbit);
 }
 
 void set_bit_false (bitflags *flags, size_t index)

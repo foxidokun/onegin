@@ -65,7 +65,7 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
         buf[n] = lines[cand_num].content;
     }
 
-    free (used);
+    free_bitflags (used);
 
     return 0;
 }
