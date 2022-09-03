@@ -21,3 +21,6 @@ int test_hashmap ();
 
 /// @return Non-zero value on error
 int test_bits ();
+
+/// @return Non-zero value on error
+int test_prefixes ();

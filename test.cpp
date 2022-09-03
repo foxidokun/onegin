@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "onegin.h"
+#include "prefixes.h"
 #include "hashmap.h"
 #include "bits.h"
 #include "sort.h"
@@ -159,6 +161,36 @@ int test_bits ()
 }
 
 // ------------------------------------------------------------------------------------------------
+//                                      PREFIXES TESTS
+// ------------------------------------------------------------------------------------------------
+
+int test_prefixes ()
+{
+    const char *str = "DEADINSIDE";
+
+    prefixes *pr = create_prefixes(4, str);
+    _ASSERT (pr != NULL);
+    _ASSERT (!strcmp (get_prefix(pr, 4), "SIDE"));
+    _ASSERT (!strcmp (get_prefix(pr, 3),  "IDE"));
+    _ASSERT (!strcmp (get_prefix(pr, 2),   "DE"));
+    _ASSERT (!strcmp (get_prefix(pr, 1),    "E"));
+    _ASSERT (!strcmp (get_prefix(pr, 0),     ""));
+
+    update_prefixes(pr, 'B');
+    update_prefixes(pr, 'T');
+
+    _ASSERT (!strcmp (get_prefix(pr, 4), "DEBT"));
+    _ASSERT (!strcmp (get_prefix(pr, 3),  "EBT"));
+    _ASSERT (!strcmp (get_prefix(pr, 2),   "BT"));
+    _ASSERT (!strcmp (get_prefix(pr, 1),    "T"));
+    _ASSERT (!strcmp (get_prefix(pr, 0),     ""));
+
+    free_prefixes(pr);
+
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
 //                                      GLOBAL FUNCTIONS
 // ------------------------------------------------------------------------------------------------
 
@@ -174,6 +206,7 @@ void run_tests ()
     _TEST (test_rev_skip_nalpha_cp1251 ());
     _TEST (test_hashmap ()               );
     _TEST (test_bits ()                  );
+    _TEST (test_prefixes ()              );
 
     printf ("Tests total: %u, failed %u, success: %u, success ratio: %3.1lf",
         failed + success, failed, success, success * 100.0 / (success + failed));
