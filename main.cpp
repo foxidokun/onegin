@@ -68,6 +68,10 @@ int main (int argc, char *argv[])
         fprintf (out_stream, "%s\n", poem[i]);
     }
 
+    free (poem);
+    free_text (file);
+    fclose (out_stream);
+    
     return 0;
 }
 
