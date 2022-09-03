@@ -40,7 +40,7 @@ ssize_t bit_find_value (const bitflags *flags, bool value)
     assert (flags != NULL && "pointer can't be NULL");
 
     uint64_t *words = flags->words;
-    uint64_t bad_word = value ? ~0u : 0;
+    uint64_t bad_word = value ? 0 : ~0lu;
     size_t bit_index = 0;
 
     for (size_t i = 0; i < flags->nwords; ++i)
