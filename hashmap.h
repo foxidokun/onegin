@@ -7,6 +7,8 @@
 
 /**
  * @brief      HashMap struct
+ * 
+ * @note Memory usage is constant and approximately equal to sizeof (hashmap) + (key_size + val_size)*allocated
  */
 struct hashmap
 {
@@ -77,6 +79,14 @@ int hashmap_insert (hashmap *map, const void *key, const void *value);
  * you will call hashmap_clear / hashmap_resize / hashmap_free
  * this is safe function.
  */
-const void *hashmap_get (const hashmap *map, const void *key);
+void *hashmap_get (const hashmap *map, const void *key);
+
+/**
+ * @brief      Execute func for all values
+ *
+ * @param      map   Hashmap
+ * @param[in]  func  The function that takes value
+ */
+void hashmap_forall (hashmap *map, void func (void *));
 
 #endif
