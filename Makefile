@@ -22,7 +22,7 @@ clean:
 	$(SAFETY_COMMAND) && rm -rf $(ODIR) $(BINDIR)
 
 test: $(BINDIR)
-	g++ -o $(BINDIR)/$(PROJ)_test file.cpp main.cpp sort.cpp test.cpp $(CFLAGS) -D TEST && $(BINDIR)/$(PROJ)_test
+	g++ -o $(BINDIR)/$(PROJ)_test file.cpp main.cpp sort.cpp test.cpp hashmap.cpp bits.cpp $(CFLAGS) -D TEST && $(BINDIR)/$(PROJ)_test
 
 .PHONY: clean
 

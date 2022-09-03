@@ -70,7 +70,7 @@ int hashmap_insert (hashmap *map, const void *key, const void *value);
  * @param[in]  map   Hashmap
  * @param[in]  key   Key
  *
- * @return     Pointer to internal buffer
+ * @return     Pointer to internal buffer or NULL if can't find value
  * 
  * @note Yeah, this is unsound behavior. BUT until
  * hashmap_edit or smth like this will be inplemented and until
