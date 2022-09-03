@@ -8,6 +8,7 @@ hashmap *hashmap_create (size_t capacity, size_t key_size, size_t val_size,
                     long unsigned int hash(const void *), int (*comp)(const void *, const void *))
 {
     assert (hash != NULL && "function can't be NULL");
+    assert (comp != NULL && "function can't be NULL");
 
     hashmap *map   = (hashmap *) calloc (1, sizeof (hashmap));
     _UNWRAP_NULL (map);
@@ -31,6 +32,8 @@ hashmap *hashmap_create (size_t capacity, size_t key_size, size_t val_size,
 
 void hashmap_free (hashmap *map)
 {
+    assert (map != NULL && "pointer can't be NULL");
+
     free_bitflags (map->flags);
     free (map->keys);
     free (map->values);
@@ -48,6 +51,7 @@ void hashmap_clear (hashmap *map)
 
 hashmap *hashmap_resize (hashmap *old_map, size_t new_size)
 {
+    assert (old_map != NULL && "pointer can't be NULL");
     assert (new_size > old_map->used && "New hashmap must be bigger than number of elements in old");
 
     hashmap *new_map = hashmap_create (new_size, old_map->key_size, old_map->val_size,
@@ -71,6 +75,10 @@ hashmap *hashmap_resize (hashmap *old_map, size_t new_size)
 
 int hashmap_insert (hashmap *map, const void *key, const void *value)
 {
+    assert (map   != NULL && "pointer can't be NULL");
+    assert (key   != NULL && "pointer can't be NULL");
+    assert (value != NULL && "pointer can't be NULL");
+
     if (map->allocated == map->used) return ERROR; // OOM
 
     size_t id = map->hash (key) % map->allocated;
@@ -95,6 +103,9 @@ int hashmap_insert (hashmap *map, const void *key, const void *value)
 
 const void *hashmap_get (const hashmap *map, const void *key)
 {
+    assert (map != NULL && "pointer can't be NULL");
+    assert (key != NULL && "pointer can't be NULL");
+
     size_t id = map->hash (key) % map->allocated;
 
     if (!map->comp (key, (char *) map->keys + id*map->key_size))
