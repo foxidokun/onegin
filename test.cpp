@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "onegin.h"
+#include "hashmap.h"
+#include "bits.h"
 #include "sort.h"
 #include "test.h"
 
@@ -33,6 +36,11 @@
 }
 
 static int intcmp (const void *lhs, const void *rhs);
+
+// ------------------------------------------------------------------------------------------------
+//                                  SORT TESTS
+// ------------------------------------------------------------------------------------------------
+
 
 int test_cust_qsort ()
 {
@@ -82,6 +90,78 @@ int test_rev_skip_nalpha_cp1251 ()
     return 0;
 }
 
+// ------------------------------------------------------------------------------------------------
+//                                      HASHMAP TESTS
+// ------------------------------------------------------------------------------------------------
+
+long unsigned int hash (const void *key);
+
+int test_hashmap ()
+{
+    hashmap *map = hashmap_create (4, sizeof (int), sizeof (int), hash, intcmp);
+    _ASSERT (map != NULL);
+
+    const int key = 6, val = 4, w_key = 228;
+    _ASSERT (hashmap_insert (map, &key, &val) == 0);
+    _ASSERT (hashmap_get (map, &key) != NULL);
+    _ASSERT (intcmp (hashmap_get (map, &key), &val) == 0);
+    _ASSERT (hashmap_get (map, &w_key) == NULL);
+
+    map = hashmap_resize (map, 12);
+    _ASSERT (map != NULL);
+    _ASSERT (hashmap_insert (map, &w_key, &val) == 0);
+    _ASSERT (hashmap_get (map, &key)   != NULL);
+    _ASSERT (hashmap_get (map, &w_key) != NULL);
+    _ASSERT (intcmp (hashmap_get (map,   &key), &val) == 0);
+    _ASSERT (intcmp (hashmap_get (map, &w_key), &val) == 0);
+
+
+    hashmap_free (map);
+    return 0;
+}
+
+long unsigned int hash (const void *key)
+{
+    return *(const unsigned int *) key;
+}
+
+// ------------------------------------------------------------------------------------------------
+//                                      BITS TESTS
+// ------------------------------------------------------------------------------------------------
+
+int test_bits ()
+{
+    bitflags *bf = create_bitflags (253);
+    _ASSERT (bf != NULL);
+
+    set_bit_true (bf, 0);
+    _ASSERT (check_bit (bf, 0));
+    _ASSERT (bit_find_value (bf, 1) == 0);
+    _ASSERT (bit_find_value (bf, 0) == 1);
+    
+    set_bit_false (bf, 0);
+    _ASSERT (!check_bit (bf, 0));
+    _ASSERT (bit_find_value (bf, 1) == ERROR);
+    _ASSERT (bit_find_value (bf, 0) == 0);
+    
+    set_bit_true (bf, 3);
+    _ASSERT (bit_find_value (bf, 1) == 3);
+    
+    clear_bitflags (bf);
+    _ASSERT (bit_find_value (bf, 1) == ERROR);
+    _ASSERT (!check_bit (bf, 3));
+
+    set_bit_true (bf, 251);
+    _ASSERT (check_bit (bf, 251));
+
+    free_bitflags (bf);
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+//                                      GLOBAL FUNCTIONS
+// ------------------------------------------------------------------------------------------------
+
 void run_tests ()
 {
     unsigned int success = 0;
@@ -92,6 +172,8 @@ void run_tests ()
     _TEST (test_cust_qsort ()            );
     _TEST (test_skip_nalpha_cp1251 ()    );
     _TEST (test_rev_skip_nalpha_cp1251 ());
+    _TEST (test_hashmap ()               );
+    _TEST (test_bits ()                  );
 
     printf ("Tests total: %u, failed %u, success: %u, success ratio: %3.1lf",
         failed + success, failed, success, success * 100.0 / (success + failed));

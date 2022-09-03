@@ -15,3 +15,9 @@ int test_skip_nalpha_cp1251 ();
 
 /// @return Non-zero value on error
 int test_rev_skip_nalpha_cp1251 ();
+
+/// @return Non-zero value on error
+int test_hashmap ();
+
+/// @return Non-zero value on error
+int test_bits ();
