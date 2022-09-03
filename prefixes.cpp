@@ -5,7 +5,7 @@
 #include "prefixes.h"
 
 
-prefixes *create_prefixes (size_t max_len, char *init_string)
+prefixes *create_prefixes (size_t max_len, const char *init_string)
 {
     assert (init_string != NULL && "pointer can't be NULL");
     assert (strlen (init_string) >= max_len && "Init string too small");
@@ -18,7 +18,7 @@ prefixes *create_prefixes (size_t max_len, char *init_string)
     _UNWRAP_NULL (pr->buf);
 
     size_t len = strlen (init_string);
-    strncpy (pr->buf, init_string + (len-max_len),max_len+1);
+    strncpy (pr->buf, init_string + (len-max_len), max_len+1);
 
     return pr;
 }
@@ -40,7 +40,7 @@ void update_prefixes (prefixes *pr, char next_chr)
         pr->buf[i] = pr->buf[i+1];
     }
 
-    pr->buf[pr->max_len] = next_chr;
+    pr->buf[pr->max_len-1] = next_chr;
 }
 
 const char *get_prefix (const prefixes *pr, size_t len)
