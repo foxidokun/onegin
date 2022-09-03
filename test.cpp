@@ -113,6 +113,8 @@ int test_hashmap ()
     _ASSERT (intcmp (hashmap_get (map,   &key), &val) == 0);
     _ASSERT (intcmp (hashmap_get (map, &w_key), &val) == 0);
 
+
+    hashmap_free (map);
     return 0;
 }
 
