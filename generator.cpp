@@ -9,14 +9,10 @@
 //---------------------------------------------------------------------------------------------------------
 
 static long int find_candidate (const struct text *text, unsigned int from,
-                                unsigned int to, uint8_t *used);
+                                unsigned int to, bitflags *used);
 
 static long int min (long int a, long int b);
 static long int max (long int a, long int b);
-
-//---------------------------------------------------------------------------------------------------------
-
-#define __UNWRAP(expr) { if ((expr) == ERROR) { return ERROR; } }
 
 //---------------------------------------------------------------------------------------------------------
 
@@ -30,8 +26,7 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
     line *lines          = text->lines;
     unsigned int n_lines = text->n_lines;
 
-    // Bool bits
-    uint8_t *used        = (uint8_t *) calloc (n_lines/8 + 1, sizeof (uint8_t));
+    bitflags *used       = create_bitflags (n_lines);
 
     unsigned int pos[2]  = {};
 
@@ -46,9 +41,9 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
     {
         if (n % BLOCK_SIZE == 0)
         {
-            __UNWRAP (pos_tmp = find_candidate (text, 0, n_lines, used));
+            _UNWRAP_ERR (pos_tmp = find_candidate (text, 0, n_lines, used));
             pos[0] = (unsigned int) pos_tmp;
-            __UNWRAP (pos_tmp = find_candidate (text, 0, n_lines, used));
+            _UNWRAP_ERR (pos_tmp = find_candidate (text, 0, n_lines, used));
             pos[1] = (unsigned int) pos_tmp;
         }
 
@@ -87,7 +82,7 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
  * @return     (unsigned int) candidate index or ERROR on range
  */
 static long int find_candidate (const struct text *text, unsigned int from,
-                                unsigned int to, uint8_t *used)
+                                unsigned int to, bitflags *used)
 {
     assert (text != NULL       && "pointer can't be NULL");
     assert (from < to          && "range can't be empty");
@@ -101,7 +96,7 @@ static long int find_candidate (const struct text *text, unsigned int from,
 
     for (unsigned int n = from; n < to; ++n)
     {
-        if (!check_bit (used[n/8], n%8))
+        if (!check_bit (used, n))
         {
             //Skip not big enough lines
             line_len = strlen (lines[n].content);
@@ -129,7 +124,7 @@ static long int find_candidate (const struct text *text, unsigned int from,
 
     unsigned int cand = cand_list[(unsigned int) rand() % cand_num];
 
-    set_bit (used + (cand/8), cand%8, 1);
+    set_bit_true (used, cand);
 
     free (cand_list);
     
