@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "onegin.h"
 #include "hashmap.h"
+#include "bits.h"
 #include "sort.h"
 #include "test.h"
 
@@ -124,6 +126,39 @@ long unsigned int hash (const void *key)
 }
 
 // ------------------------------------------------------------------------------------------------
+//                                      BITS TESTS
+// ------------------------------------------------------------------------------------------------
+
+int test_bits ()
+{
+    bitflags *bf = create_bitflags (253);
+    _ASSERT (bf != NULL);
+
+    set_bit_true (bf, 0);
+    _ASSERT (check_bit (bf, 0));
+    _ASSERT (bit_find_value (bf, 1) == 0);
+    _ASSERT (bit_find_value (bf, 0) == 1);
+    
+    set_bit_false (bf, 0);
+    _ASSERT (!check_bit (bf, 0));
+    _ASSERT (bit_find_value (bf, 1) == ERROR);
+    _ASSERT (bit_find_value (bf, 0) == 0);
+    
+    set_bit_true (bf, 3);
+    _ASSERT (bit_find_value (bf, 1) == 3);
+    
+    clear_bitflags (bf);
+    _ASSERT (bit_find_value (bf, 1) == ERROR);
+    _ASSERT (!check_bit (bf, 3));
+
+    set_bit_true (bf, 251);
+    _ASSERT (check_bit (bf, 251));
+
+    free_bitflags (bf);
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
 //                                      GLOBAL FUNCTIONS
 // ------------------------------------------------------------------------------------------------
 
@@ -138,6 +173,7 @@ void run_tests ()
     _TEST (test_skip_nalpha_cp1251 ()    );
     _TEST (test_rev_skip_nalpha_cp1251 ());
     _TEST (test_hashmap ()               );
+    _TEST (test_bits ()                  );
 
     printf ("Tests total: %u, failed %u, success: %u, success ratio: %3.1lf",
         failed + success, failed, success, success * 100.0 / (success + failed));

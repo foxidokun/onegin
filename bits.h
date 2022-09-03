@@ -43,7 +43,7 @@ void set_bit_false (bitflags *flags, size_t index);
  * @param      flags  Flags
  * @param[in]  value  Value
  *
- * @return     Minimal value index or -1 if there isn't this value in bit flags
+ * @return     Minimal value index or ERROR if there isn't this value in bit flags
  */
 ssize_t bit_find_value (const bitflags *flags, bool value);
 
