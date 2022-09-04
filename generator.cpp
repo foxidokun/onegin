@@ -99,6 +99,64 @@ int collect_stats (const text *text, chain *ch)
     return 0;
 }
 
+int markov_generator (const chain *ch, char *buf, size_t buf_size)
+{
+    assert (ch   != NULL && "pointer can't be NULL");
+    assert (buf  != NULL && "pointer can't be NULL");
+    assert (ch->max_prefix_len <= buf_size && "Small buffer");
+
+    size_t pos       =   0 ;
+    char   next_char = '\0';
+
+    // Fill buf with '\0'
+    strncpy (buf, "", buf_size);
+
+    while (buf_size > 0)
+    {
+        while ((next_char = get_next_char (ch, buf)) == '\0')
+        {
+            // Failed to insert even with empty prefix
+            if (pos == 0) return ERROR;
+
+            buf++;
+            pos--;
+        }
+
+        buf[pos] = next_char;
+        pos++;
+    }
+
+    return 0;
+}
+
+char get_next_char (const chain *ch, const char *prefix)
+{
+    assert (ch     != NULL && "pointer can't be NULL");
+    assert (prefix != NULL && "pointer can't be NULL");
+
+    stat *st = (stat *) hashmap_get(ch->map, prefix);
+    if (st == NULL) return '\0';
+
+    assert (st->total != 0 && "Empty stat in hashmap");
+
+    // rand generates in [0, RAND_MAX] so it's already unsigned
+    unsigned long int target_cnt = (unsigned long int) rand() % st->total;
+    unsigned long int   real_cnt = 0;
+    unsigned      int        chr = 0;
+
+    for (chr = 0; real_cnt <= target_cnt; ++chr)
+    {
+        real_cnt += st->char_cnt[chr];
+
+        assert (chr < 256 && "total_cnt > sum of all char_cnt");
+    }
+
+    assert ((chr-1) < 256 && "Ooops... Bad type casting");
+    assert (chr     >   0 && "Ooops... Bad type casting");
+
+    return (char) (chr-1);
+}
+
 int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
                         unsigned char range)
 {
@@ -113,12 +171,10 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
 
     unsigned int pos[2]  = {};
 
-    long int pos_tmp = 0;
-
-    unsigned int cand_num    = 0;
-    long int cand_num_tmp    = 0;
-    unsigned char parity     = 0;
-
+    long     int  pos_tmp      = 0;
+    unsigned int  cand_num     = 0;
+    long     int  cand_num_tmp = 0;
+    unsigned char parity       = 0;
 
     for (size_t n = 0; n < buf_size; ++n)
     {
