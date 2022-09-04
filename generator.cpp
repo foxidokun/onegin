@@ -18,6 +18,8 @@ static long int max (long int a, long int b);
 static long unsigned int strhash (const void *str);
 static               int keycmp  (const void *lhs, const void *rhs);
 
+static void free_stat_by_pointer (void *st);
+
 //---------------------------------------------------------------------------------------------------------
 
 chain *create_chain (size_t max_prefix_len)
@@ -38,9 +40,21 @@ void free_chain (chain *ch)
 {
     assert (ch != NULL && "pointer can't be NULL");
 
-    hashmap_forall (ch->map, free); // Free all allocated stat structers
+    hashmap_forall (ch->map, free_stat_by_pointer); // Free all allocated stat structers
     hashmap_free   (ch->map);
     free (ch);
+}
+
+/**
+ * @brief      Free memory occupied by stat struct by it (stat **)
+ *
+ * @param      st    stat **
+ */
+static void free_stat_by_pointer (void *st)
+{
+    assert (st != NULL && "pointer can't be NULL");
+
+    free (*(stat **) st);
 }
 
 int collect_stats (const text *text, chain *ch)
@@ -48,53 +62,52 @@ int collect_stats (const text *text, chain *ch)
     assert (text != NULL && "pointer can't be NULL");
     assert (ch   != NULL && "pointer can't be NULL");
 
-    char  *content        = text->content;
-    line  *lines          = text->lines;
     size_t max_prefix_len = ch->max_prefix_len;
 
-    unsigned int n_line = 0;
-    while (n_line < text->n_lines && strlen (lines[n_line].content) < max_prefix_len)
-    {
-        n_line++;
-    }
-    if (n_line == text->n_lines) return ERROR;
-
-    prefixes *pr = create_prefixes (max_prefix_len, lines[n_line].content);
+    prefixes *pr = create_prefixes (max_prefix_len, text->content);
     _UNWRAP_NULL_ERR (pr);
 
     char next_char = '\0';
-    stat *st = NULL;
+    stat **st_p = NULL;
+    stat  *st   = NULL;
 
     // lines[n_line].content always > content
-    for (size_t i = (size_t) (lines[n_line].content - content) + max_prefix_len;
-                i < text->content_size; ++i)
+    for (size_t i = max_prefix_len; i < text->content_size; ++i)
     {
         next_char = text->content[i];
         if (next_char == '\0') next_char = ' ';
 
         for (size_t p_len = 0; p_len <= max_prefix_len; ++p_len)
         {
-            st = (stat *) hashmap_get (ch->map, get_prefix (pr, p_len));
+            st_p = (stat **) hashmap_get (ch->map, get_prefix (pr, p_len));
 
-            if (st == NULL)
+            if (st_p == NULL)
             {
                 st = (stat *) calloc (1, sizeof (stat));
                 _UNWRAP_NULL_ERR (st);
 
-                if (hashmap_insert (ch->map, get_prefix (pr, p_len), st) == ERROR)
+                if (hashmap_insert (ch->map, get_prefix (pr, p_len), p_len+1, &st, sizeof (st)) == ERROR)
                 {
-                    hashmap *new_map = hashmap_resize(ch->map, ch->map->allocated * 2);
+                    hashmap *new_map = hashmap_resize (ch->map, ch->map->allocated * 2);
                     _UNWRAP_NULL_ERR (new_map);
                     ch->map = new_map;
                 }
             }
+            else
+            {
+                st = *st_p;
+            }
 
             st->total++;
             st->char_cnt[(unsigned char) next_char]++;
+
+            if (next_char == 1) assert (0 && "FOUND THIS BITCH");
         }
 
         update_prefixes (pr, text->content[i]);
     }
+
+    free_prefixes (pr);
 
     return 0;
 }
@@ -111,7 +124,8 @@ int markov_generator (const chain *ch, char *buf, size_t buf_size)
     // Fill buf with '\0'
     strncpy (buf, "", buf_size);
 
-    while (buf_size > 0)
+    // Do not overwrite last '\0'
+    while (buf_size > 1)
     {
         while ((next_char = get_next_char (ch, buf)) == '\0')
         {
@@ -124,6 +138,7 @@ int markov_generator (const chain *ch, char *buf, size_t buf_size)
 
         buf[pos] = next_char;
         pos++;
+        buf_size--;
     }
 
     return 0;
@@ -134,8 +149,10 @@ char get_next_char (const chain *ch, const char *prefix)
     assert (ch     != NULL && "pointer can't be NULL");
     assert (prefix != NULL && "pointer can't be NULL");
 
-    stat *st = (stat *) hashmap_get(ch->map, prefix);
-    if (st == NULL) return '\0';
+    stat **st_p = (stat **) hashmap_get(ch->map, prefix);
+    if (st_p == NULL) return '\0';
+    
+    stat *st = *st_p;
 
     assert (st->total != 0 && "Empty stat in hashmap");
 

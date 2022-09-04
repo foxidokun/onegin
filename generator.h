@@ -14,7 +14,7 @@ static const double MIN_ALPHA_PERSENTAGE = 0.8;
 static const int BLOCK_SIZE = 4;
 
 /// Initial number of prefixes in markov chain
-static const int NPREFIXES = 256;
+static const int NPREFIXES = 1000000;
 
 //---------------------------------------------------------------------------------------------------------
 
