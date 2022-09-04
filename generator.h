@@ -76,4 +76,27 @@ void free_chain (chain *ch);
  */
 int collect_stats (const text *text, chain *ch);
 
+/**
+ * @brief      Gets the next character predicted by markov chain
+ * 
+ * @note requires initialized rand
+ *
+ * @param[in]  ch      Markov chain
+ * @param[in]  prefix  Prefix
+ *
+ * @return     The next character or '\0' if there are no statistics for this prefix
+ */
+char get_next_char (const chain *ch, const char *prefix);
+
+/**
+ * @brief      Generate text
+ *
+ * @param[in]  ch        Pre-trained markov chain
+ * @param[out] buf       Output buffer
+ * @param[in]  buf_size  Buffer size
+ *
+ * @return     Non zero value on ERROR
+ */
+int markov_generator (const chain *ch, char *buf, size_t buf_size);
+
 #endif //GENERATOR_H
