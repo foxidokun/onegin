@@ -21,8 +21,9 @@ int main ()
 
 int main (int argc, char *argv[])
 {
-    const int POEM_NLINES = 256;
-    const int AFFINITY_RANGE = 15;
+    const int POEM_NLINES     = 256;
+    const int AFFINITY_RANGE  =  15;
+    const int MARKOV_BUF_SIZE = 256;
 
     srand ((unsigned int) time (NULL));
 
@@ -44,6 +45,8 @@ int main (int argc, char *argv[])
 
     if (file == NULL) { printf ("Failed to read file or OOM\n"); return -1; }
 
+    // ------- DIFFERRENT ORDERS -------
+
     fprintf (out_stream, "=== Alphabetical order ===\n\n");
     alpha_file_lines_sort (file, cust_qsort);
     write_lines (file, out_stream);
@@ -54,6 +57,8 @@ int main (int argc, char *argv[])
     fprintf (out_stream, "\n=== Reverse order===\n\n");
     rev_alpha_file_lines_sort (file, cust_qsort);
     write_lines (file, out_stream);
+
+    // ------- POEM GENERATOR -------
 
     char **poem = (char **) calloc (POEM_NLINES, sizeof (char*));
     if (poem_generator(file, poem, POEM_NLINES, AFFINITY_RANGE) == ERROR)
@@ -68,10 +73,27 @@ int main (int argc, char *argv[])
         fprintf (out_stream, "%s\n", poem[i]);
     }
 
-    free (poem);
-    free_text (file);
-    fclose (out_stream);
+    // ------- CHAIN GENERATOR -------
+
+    chain *ch = create_chain (5);
+    _UNWRAP_NULL_ERR (ch);
+    collect_stats (file, ch);
+
+    char *buf = (char *) calloc (MARKOV_BUF_SIZE, sizeof (char));
+    _UNWRAP_NULL_ERR (buf);
+
+    fprintf (out_stream, "\n=== MARKOV GENERATED ===\n\n");
+    markov_generator(ch, buf, MARKOV_BUF_SIZE);
+    fprintf (out_stream, "%s\n", buf);
     
+    // ------- CLEANUP -------
+
+    free (poem);
+    free (buf);
+    free_text (file);
+    free_chain (ch);
+    fclose (out_stream);
+
     return 0;
 }
 

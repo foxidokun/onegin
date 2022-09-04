@@ -47,7 +47,7 @@ ssize_t bit_find_value (const bitflags *flags, bool value)
     {
         if (words[i] != bad_word)
         {
-            for (size_t bit_n = 0; bit_n < 8; ++bit_n)
+            for (size_t bit_n = 0; bit_n < NUM_BIT_IN_WORD; ++bit_n)
             {
                 bit_index = (i<<EXP_BIT_IN_WORD)+bit_n;  // i*64 + bit_index
 

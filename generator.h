@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "hashmap.h"
 
 /// Minimal length of valid string
 static const int MIN_LEN = 8;
@@ -12,33 +13,22 @@ static const double MIN_ALPHA_PERSENTAGE = 0.8;
 /// Number of lines in with the same rhyme
 static const int BLOCK_SIZE = 4;
 
-/// Hashmap size in struct chain. Choosed for 32MiB hashmap size
-static const unsigned int HASHMAP_SIZE   = 4194304;
-/// Number of possible chars in stat::seq and stat::prop
-static const unsigned int CHAR_CNT       = 256;
-/// Max len of prefix in stat::prefix
-static const unsigned int MAX_PREFIX_LEN = 5;
+/// Initial number of prefixes in markov chain
+static const int NPREFIXES = 1000000;
 
 //---------------------------------------------------------------------------------------------------------
 
-/**
- * @brief Markov chain prefix stats
- */
-struct stat
-{
-    unsigned int prop[CHAR_CNT];    /// Array of char counters 
-    unsigned int total;             /// Sum of counters
-    char       *prefix;             /// Prefix for this chars
-    unsigned int prefix_len;        /// Prefix len
-    stat         *next;             /// Ponter to next stat in hashmap
-};
-
-/**
- * @brief      Markov chain hashmap
- */
+/// Markov chain struct
 struct chain
 {
-    stat **hashmap;
+    hashmap *map;               /// Hashmap "prefix -> stat *"
+    size_t max_prefix_len;      /// Max prefix lenght in collected stats
+};
+
+struct stat
+{
+    unsigned long int total;         /// Total counter
+    unsigned      int char_cnt[256]; /// Per-char counter
 };
 
 //---------------------------------------------------------------------------------------------------------
@@ -59,36 +49,54 @@ struct chain
  */
 int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
                         unsigned char range);
-/**
- * @brief      Allocates chain
- *
- * @return     Pointer to chain
- */
-chain *create_chain ();
 
 /**
- * @brief      Free memory, used by chain
+ * @brief      Creates a Markov chain.
  *
- * @param      ch    chain3
+ * @param[in]  max_prefix_len  The maximum prefix length
+ *
+ * @return     Pointer to allocated memory or NULL in case of OOM
+ */
+chain *create_chain (size_t max_prefix_len);
+
+/**
+ * @brief      Free memory occupied by chain struct
+ *
+ * @param      ch    Chain
  */
 void free_chain (chain *ch);
 
 /**
- * @brief      Creates statistics from text and writes them into chain
+ * @brief      Collect Markov chain stats from given text
  *
- * @param[in]  text   Text
- * @param      chain  Chain
+ * @param[in]  text  Text
+ * @param      ch    Chain
+ *
+ * @return     Non-zero value on error
  */
-void collect_stats (const text *text, chain *chain);
+int collect_stats (const text *text, chain *ch);
 
 /**
- * @brief      Generate text with markov chain and write it into buffer
+ * @brief      Gets the next character predicted by markov chain
+ * 
+ * @note requires initialized rand
  *
- * @param[in]  chain     Chain
- * @param      buf       Buffer
- * @param[in]  buf_size  Buffer size
- * @param      seed      Seed
+ * @param[in]  ch      Markov chain
+ * @param[in]  prefix  Prefix
+ *
+ * @return     The next character or '\0' if there are no statistics for this prefix
  */
-void generate_text (const chain *chain, char *buf, size_t buf_size, const char *seed);
+char get_next_char (const chain *ch, const char *prefix);
+
+/**
+ * @brief      Generate text
+ *
+ * @param[in]  ch        Pre-trained markov chain
+ * @param[out] buf       Output buffer
+ * @param[in]  buf_size  Buffer size
+ *
+ * @return     Non zero value on ERROR
+ */
+int markov_generator (const chain *ch, char *buf, size_t buf_size);
 
 #endif //GENERATOR_H
