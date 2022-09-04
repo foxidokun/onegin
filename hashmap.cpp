@@ -4,7 +4,7 @@
 #include "onegin.h"
 #include "hashmap.h"
 
-hashmap *hashmap_create (size_t capacity, size_t key_size, size_t val_size,
+hashmap *hashmap_create (size_t capacity, size_t max_key_size, size_t max_val_size,
                     long unsigned int hash(const void *), int (*comp)(const void *, const void *))
 {
     assert (hash != NULL && "function can't be NULL");
@@ -13,15 +13,15 @@ hashmap *hashmap_create (size_t capacity, size_t key_size, size_t val_size,
     hashmap *map   = (hashmap *) calloc (1, sizeof (hashmap));
     _UNWRAP_NULL (map);
 
-    map->used      = 0;
-    map->allocated = capacity;
-    map->key_size  = key_size;
-    map->val_size  = val_size;
-    map->flags     = create_bitflags (capacity);
-    map->keys      = calloc (capacity, key_size);
-    map->values    = calloc (capacity, val_size);
-    map->hash      = hash;
-    map->comp      = comp;
+    map->used          = 0;
+    map->allocated     = capacity;
+    map->max_key_size  = max_key_size;
+    map->max_val_size  = max_val_size;
+    map->flags         = create_bitflags (capacity);
+    map->keys          = calloc (capacity, max_key_size);
+    map->values        = calloc (capacity, max_val_size);
+    map->hash          = hash;
+    map->comp          = comp;
     
     _UNWRAP_NULL (map->flags);
     _UNWRAP_NULL (map->keys);
@@ -54,7 +54,7 @@ hashmap *hashmap_resize (hashmap *old_map, size_t new_size)
     assert (old_map != NULL && "pointer can't be NULL");
     assert (new_size > old_map->used && "New hashmap must be bigger than number of elements in old");
 
-    hashmap *new_map = hashmap_create (new_size, old_map->key_size, old_map->val_size,
+    hashmap *new_map = hashmap_create (new_size, old_map->max_key_size, old_map->max_val_size,
                                         old_map->hash, old_map->comp);
     _UNWRAP_NULL (new_map);
 
@@ -63,8 +63,9 @@ hashmap *hashmap_resize (hashmap *old_map, size_t new_size)
     {
         if (check_bit (old_map->flags, id))
         {
-            hashmap_insert (new_map, (char *) old_map->keys   + id*old_map->key_size,
-                                     (char *) old_map->values + id*old_map->val_size);
+            hashmap_insert (new_map,
+                (char *) old_map->keys   + id*old_map->max_key_size, old_map->max_key_size,
+                (char *) old_map->values + id*old_map->max_val_size, old_map->max_val_size);
         }
     }
 
@@ -73,18 +74,20 @@ hashmap *hashmap_resize (hashmap *old_map, size_t new_size)
     return new_map;
 }
 
-int hashmap_insert (hashmap *map, const void *key, const void *value)
+int hashmap_insert (hashmap *map, const void *key, size_t key_size, const void *value, size_t val_size)
 {
     assert (map   != NULL && "pointer can't be NULL");
     assert (key   != NULL && "pointer can't be NULL");
     assert (value != NULL && "pointer can't be NULL");
+    assert (key_size <= map->max_key_size && "Not enough space for this key");
+    assert (val_size <= map->max_val_size && "Not enough space for this value");
 
     if (map->allocated == map->used) return ERROR; // OOM
 
     size_t id = map->hash (key) % map->allocated;
 
     // ID already in use with different key
-    if (check_bit (map->flags, id) && map->comp (key, (char *) map->keys + id*map->key_size))
+    if (check_bit (map->flags, id) && map->comp (key, (char *) map->keys + id*map->max_key_size))
     {
         ssize_t id_tmp = bit_find_value (map->flags, 0);
         assert (id_tmp != ERROR && "Used < allocated, but all cells are occupied");
@@ -95,8 +98,8 @@ int hashmap_insert (hashmap *map, const void *key, const void *value)
     set_bit_true (map->flags, id);
     map->used++;
 
-    memcpy ((char *) map->keys + id*map->key_size,   key,   map->key_size);
-    memcpy ((char *) map->values + id*map->val_size, value, map->val_size);
+    memcpy ((char *) map->keys   + id*map->max_key_size,   key, key_size);
+    memcpy ((char *) map->values + id*map->max_val_size, value, val_size);
 
     return 0;
 }
@@ -108,16 +111,23 @@ void *hashmap_get (const hashmap *map, const void *key)
 
     size_t id = map->hash (key) % map->allocated;
 
-    if (!map->comp (key, (char *) map->keys + id*map->key_size))
+    if (check_bit (map->flags, id) && !map->comp (key, (char *) map->keys + id*map->max_key_size))
     {
-        return (char *) map->values + id*map->val_size;
+        return (char *) map->values + id*map->max_val_size;
     }
 
     for (id = 0; id < map->allocated; ++id)
     {
-        if (check_bit (map->flags, id) && !map->comp (key, (char *) map->keys + id*map->key_size))
+        if (check_bit (map->flags, id))
         {
-            return (char *) map->values + id*map->val_size;
+            if (!map->comp (key, (char *) map->keys + id*map->max_key_size))
+            {
+                return (char *) map->values + id*map->max_val_size;
+            }
+        }
+        else 
+        {
+            return NULL;
         }
     }
 
@@ -133,7 +143,7 @@ void hashmap_forall (hashmap *map, void func (void *))
     {
         if (check_bit (map->flags, id))
         {
-            func ((char *) map->values + id*map->val_size);
+            func ((char *) map->values + id*map->max_val_size);
         }
     }
 }
