@@ -18,7 +18,7 @@ static long int max (long int a, long int b);
 static long unsigned int strhash (const void *str);
 static               int keycmp  (const void *lhs, const void *rhs);
 
-static void free_stat_by_pointer (void *st);
+static void free_by_pointer (void *st);
 
 //---------------------------------------------------------------------------------------------------------
 
@@ -40,21 +40,21 @@ void free_chain (chain *ch)
 {
     assert (ch != NULL && "pointer can't be NULL");
 
-    hashmap_forall (ch->map, free_stat_by_pointer); // Free all allocated stat structers
+    hashmap_forall (ch->map, free_by_pointer); // Free all allocated stat structers
     hashmap_free   (ch->map);
     free (ch);
 }
 
 /**
- * @brief      Free memory occupied by stat struct by it (stat **)
+ * @brief      Free allocated memory by (void **)
  *
- * @param      st    stat **
+ * @param      pp    void **
  */
-static void free_stat_by_pointer (void *st)
+static void free_by_pointer (void *pp)
 {
-    assert (st != NULL && "pointer can't be NULL");
+    assert (pp != NULL && "pointer can't be NULL");
 
-    free (*(stat **) st);
+    free (* (void**)pp);
 }
 
 int collect_stats (const text *text, chain *ch)
@@ -68,8 +68,8 @@ int collect_stats (const text *text, chain *ch)
     _UNWRAP_NULL_ERR (pr);
 
     char next_char = '\0';
-    stat **st_p = NULL;
-    stat  *st   = NULL;
+    stat **st_p    = NULL;
+    stat  *st      = NULL;
 
     // lines[n_line].content always > content
     for (size_t i = max_prefix_len; i < text->content_size; ++i)
@@ -151,7 +151,7 @@ char get_next_char (const chain *ch, const char *prefix)
 
     stat **st_p = (stat **) hashmap_get(ch->map, prefix);
     if (st_p == NULL) return '\0';
-    
+
     stat *st = *st_p;
 
     assert (st->total != 0 && "Empty stat in hashmap");
@@ -177,9 +177,9 @@ char get_next_char (const chain *ch, const char *prefix)
 int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
                         unsigned char range)
 {
-    assert (text != NULL     && "pointer can't be NULL");
-    assert (buf  != NULL     && "pointer can't be NULL");
-    assert (buf_size >= 2    && "can't construct poem from less than two lines");
+    assert (text != NULL  && "pointer can't be NULL");
+    assert (buf  != NULL  && "pointer can't be NULL");
+    assert (buf_size >= 2 && "can't construct poem from less than two lines");
 
     line *lines          = text->lines;
     unsigned int n_lines = text->n_lines;
@@ -199,6 +199,7 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
         {
             _UNWRAP_ERR (pos_tmp = find_candidate (text, 0, n_lines, used));
             pos[0] = (unsigned int) pos_tmp;
+            
             _UNWRAP_ERR (pos_tmp = find_candidate (text, 0, n_lines, used));
             pos[1] = (unsigned int) pos_tmp;
         }

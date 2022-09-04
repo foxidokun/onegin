@@ -10,18 +10,18 @@ hashmap *hashmap_create (size_t capacity, size_t max_key_size, size_t max_val_si
     assert (hash != NULL && "function can't be NULL");
     assert (comp != NULL && "function can't be NULL");
 
-    hashmap *map   = (hashmap *) calloc (1, sizeof (hashmap));
+    hashmap *map = (hashmap *) calloc (1, sizeof (hashmap));
     _UNWRAP_NULL (map);
 
-    map->used          = 0;
-    map->allocated     = capacity;
-    map->max_key_size  = max_key_size;
-    map->max_val_size  = max_val_size;
-    map->flags         = create_bitflags (capacity);
-    map->keys          = calloc (capacity, max_key_size);
-    map->values        = calloc (capacity, max_val_size);
-    map->hash          = hash;
-    map->comp          = comp;
+    map->used         = 0;
+    map->allocated    = capacity;
+    map->max_key_size = max_key_size;
+    map->max_val_size = max_val_size;
+    map->flags        = create_bitflags (capacity);
+    map->keys         = calloc (capacity, max_key_size);
+    map->values       = calloc (capacity, max_val_size);
+    map->hash         = hash;
+    map->comp         = comp;
     
     _UNWRAP_NULL (map->flags);
     _UNWRAP_NULL (map->keys);
@@ -37,7 +37,6 @@ void hashmap_free (hashmap *map)
     free_bitflags (map->flags);
     free (map->keys);
     free (map->values);
-
     free (map);
 }
 
