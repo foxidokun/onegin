@@ -1,3 +1,5 @@
+MAKEFLAGS += -j$(nproc)
+
 PROJ = onegin
 BINDIR = bin
 ODIR = obj
