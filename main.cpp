@@ -61,18 +61,21 @@ int main (int argc, char *argv[])
     // ------- POEM GENERATOR -------
 
     char **poem = (char **) calloc (POEM_NLINES, sizeof (char*));
+    
     if (poem_generator(file, poem, POEM_NLINES, AFFINITY_RANGE) == ERROR)
     {
-        printf ("Failed to generate poem\n");
-        return ERROR;
+        fprintf (stderr,     "Failed to generate poem\n");
+        fprintf (out_stream, "Failed to generate poem\n");
     }
+	else
+	{
+        fprintf (out_stream, "\n=== Generated poem: ===\n\n");
 
-    fprintf (out_stream, "\n=== Generated poem: ===\n\n");
-    for (int i = 0; i < POEM_NLINES; ++i)
-    {
-        fprintf (out_stream, "%s\n", poem[i]);
-    }
-
+        for (int i = 0; i < POEM_NLINES; ++i)
+        {
+            fprintf (out_stream, "%s\n", poem[i]);
+        }
+	}
     // ------- CHAIN GENERATOR -------
 
     chain *ch = create_chain (5);
