@@ -104,14 +104,14 @@ int test_hashmap ()
     _ASSERT (map != NULL);
 
     const int key = 6, val = 4, w_key = 228;
-    _ASSERT (hashmap_insert (map, &key, &val) == 0);
+    _ASSERT (hashmap_insert (map, &key, sizeof(key), &val, sizeof(val)) == 0);
     _ASSERT (hashmap_get (map, &key) != NULL);
     _ASSERT (intcmp (hashmap_get (map, &key), &val) == 0);
     _ASSERT (hashmap_get (map, &w_key) == NULL);
 
     map = hashmap_resize (map, 12);
     _ASSERT (map != NULL);
-    _ASSERT (hashmap_insert (map, &w_key, &val) == 0);
+    _ASSERT (hashmap_insert (map, &w_key, sizeof(w_key), &val, sizeof(val)) == 0);
     _ASSERT (hashmap_get (map, &key)   != NULL);
     _ASSERT (hashmap_get (map, &w_key) != NULL);
     _ASSERT (intcmp (hashmap_get (map,   &key), &val) == 0);
