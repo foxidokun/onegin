@@ -100,8 +100,6 @@ int collect_stats (const text *text, chain *ch)
 
             st->total++;
             st->char_cnt[(unsigned char) next_char]++;
-
-            if (next_char == 1) assert (0 && "FOUND THIS BITCH");
         }
 
         update_prefixes (pr, text->content[i]);
