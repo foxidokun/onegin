@@ -138,19 +138,20 @@ int test_bits ()
 
     set_bit_true (bf, 0);
     _ASSERT (check_bit (bf, 0));
-    _ASSERT (bit_find_value (bf, 1) == 0);
-    _ASSERT (bit_find_value (bf, 0) == 1);
+    _ASSERT (bit_find_value (bf, 1, 0) == 0);
+    _ASSERT (bit_find_value (bf, 0, 0) == 1);
+    _ASSERT (bit_find_value (bf, 1, 1) == 0);
     
     set_bit_false (bf, 0);
     _ASSERT (!check_bit (bf, 0));
-    _ASSERT (bit_find_value (bf, 1) == ERROR);
-    _ASSERT (bit_find_value (bf, 0) == 0);
+    _ASSERT (bit_find_value (bf, 1, 0) == ERROR);
+    _ASSERT (bit_find_value (bf, 0, 0) == 0);
     
     set_bit_true (bf, 3);
-    _ASSERT (bit_find_value (bf, 1) == 3);
+    _ASSERT (bit_find_value (bf, 1, 0) == 3);
     
     clear_bitflags (bf);
-    _ASSERT (bit_find_value (bf, 1) == ERROR);
+    _ASSERT (bit_find_value (bf, 1, 0) == ERROR);
     _ASSERT (!check_bit (bf, 3));
 
     set_bit_true (bf, 251);

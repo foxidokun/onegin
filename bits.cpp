@@ -35,16 +35,24 @@ void set_bit_false (bitflags *flags, size_t index)
     flags->words[index] = ~((~flags->words[index]) | (1<<nbit));
 }
 
-ssize_t bit_find_value (const bitflags *flags, bool value)
+ssize_t bit_find_value (const bitflags *flags, bool value, size_t search_from)
 {
     assert (flags != NULL && "pointer can't be NULL");
 
-    uint64_t *words = flags->words;
+    uint64_t *words   = flags->words;
     uint64_t bad_word = value ? 0 : ~0lu;
-    size_t bit_index = 0;
+    size_t bit_index  = 0;
+    size_t max_search = flags->nwords;
+    search_from = search_from >> EXP_BIT_IN_WORD;
 
-    for (size_t i = 0; i < flags->nwords; ++i)
+    for (size_t i = search_from; i <= max_search; ++i)
     {
+        if (i == flags->nwords)
+        {
+            i = 0;
+            max_search = search_from;
+        }
+
         if (words[i] != bad_word)
         {
             for (size_t bit_n = 0; bit_n < NUM_BIT_IN_WORD; ++bit_n)

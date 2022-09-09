@@ -38,14 +38,15 @@ void set_bit_true (bitflags *flags, size_t index);
 void set_bit_false (bitflags *flags, size_t index);
 
 /**
- * @brief      Find value first index in flags
+ * @brief      Find value first index in flags starting from word that contains search_from to the end
+ * and then from beggining to search_from word
  *
  * @param      flags  Flags
  * @param[in]  value  Value
  *
  * @return     Minimal value index or ERROR if there isn't this value in bit flags
  */
-ssize_t bit_find_value (const bitflags *flags, bool value);
+ssize_t bit_find_value (const bitflags *flags, bool value, size_t search_from);
 
 /**
  * @brief      Creates zeroed bitflag struct
