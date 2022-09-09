@@ -209,7 +209,7 @@ void run_tests ()
     _TEST (test_bits ()                  );
     _TEST (test_prefixes ()              );
 
-    printf ("Tests total: %u, failed %u, success: %u, success ratio: %3.1lf",
+    printf ("Tests total: %u, failed %u, success: %u, success ratio: %3.1lf%%\n",
         failed + success, failed, success, success * 100.0 / (success + failed));
 }
 

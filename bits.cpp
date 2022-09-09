@@ -1,8 +1,8 @@
 #include "onegin.h"
 #include "bits.h"
 
-static const int NUM_BIT_IN_WORD = 64;
 static const int EXP_BIT_IN_WORD = 6; // 2^6= 64
+static const int NUM_BIT_IN_WORD = (1 << EXP_BIT_IN_WORD);
 
 bool check_bit (const bitflags *flags, size_t index)
 {
@@ -32,7 +32,8 @@ void set_bit_false (bitflags *flags, size_t index)
     unsigned char nbit = index & (NUM_BIT_IN_WORD - 1); // index % 64
     index >>= EXP_BIT_IN_WORD; // index = index / 64
 
-    flags->words[index] = ~((~flags->words[index]) | (1<<nbit));
+    // -1 ^ (1<<nbit)
+    flags->words[index] &= -1lu ^ (1lu<<nbit);
 }
 
 ssize_t bit_find_value (const bitflags *flags, bool value, size_t search_from)
