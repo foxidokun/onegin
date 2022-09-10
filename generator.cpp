@@ -150,7 +150,7 @@ char get_next_char (const chain *ch, const char *prefix)
     stat **st_p = (stat **) hashmap_get(ch->map, prefix);
     if (st_p == NULL) return '\0';
 
-    stat *st = *st_p;
+    const stat *const st = *st_p;
 
     assert (st->total != 0 && "Empty stat in hashmap");
 

@@ -40,7 +40,7 @@ int write_lines (const struct text *text, FILE *stream)
     assert (text   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
 
-    struct line *cur_line = NULL;
+    const struct line *cur_line = NULL;
 
     for (unsigned int i = 0; i < text->n_lines; ++i)
     {

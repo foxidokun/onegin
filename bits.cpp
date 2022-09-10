@@ -40,10 +40,10 @@ ssize_t bit_find_value (const bitflags *flags, bool value, size_t search_from)
 {
     assert (flags != NULL && "pointer can't be NULL");
 
-    uint64_t *words   = flags->words;
-    uint64_t bad_word = value ? 0 : ~0lu;
-    size_t bit_index  = 0;
-    size_t max_search = flags->nwords;
+    uint64_t *const words   = flags->words;
+    uint64_t bad_word       = value ? 0 : ~0lu;
+    size_t bit_index        = 0;
+    size_t max_search       = flags->nwords;
     search_from = search_from >> EXP_BIT_IN_WORD;
 
     for (size_t i = search_from; i <= max_search; ++i)
@@ -79,7 +79,7 @@ bitflags *create_bitflags (size_t capacity)
     _UNWRAP_NULL (flags);
 
     flags->nwords = (capacity+NUM_BIT_IN_WORD-1)>>EXP_BIT_IN_WORD; // ceil (capacity/64)
-    flags->words   = (uint64_t *) calloc (flags->nwords, sizeof (uint64_t));
+    flags->words  = (uint64_t *) calloc (flags->nwords, sizeof (uint64_t));
     _UNWRAP_NULL (flags->words);
 
     return flags;
