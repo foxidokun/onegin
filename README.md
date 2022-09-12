@@ -4,6 +4,8 @@ Read file in CP1251 and write it into another file in three versions:
 1. Sorted by lines
 2. Original form
 3. Sorted by reverse lines (without changing lines)
+4. Generated poem
+5. Generated text
 
 ### How to build
 ```bash
