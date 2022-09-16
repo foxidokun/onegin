@@ -78,34 +78,25 @@ int rev_alpha_linecmp (const void *lhs, const void *rhs);
 int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_len);
 
 /**
- * @brief      isalpha for CP1251 encoding
- *
- * @param[in]  c     char
- *
- * @return     bool value
- */
-int cp1251_isalpha (char c);
-
-/**
- * @brief      Skip non-alpha (CP1251) characters
+ * @brief      Skip non-alpha characters
  *
  * @param[in]  str   Null-terminated string
  *
  * @return     Pointer to first alpha character
  */
-const char *skip_nalpha_cp1251 (const char *str);
-char       *skip_nalpha_cp1251 (char *str);
+const char *skip_nalpha (const char *str);
+char       *skip_nalpha (char *str);
 
 
 /**
- * @brief      Skip non-alpha (CP1251) characters in reverse direction
+ * @brief      Skip non-alpha characters in reverse direction
  *
  * @param[in]  str     The string
  * @param[in]  index   Index of last character (len - 1)
  *
  * @return     Index of last alpha character
  */
-size_t rev_skip_nalpha_cp1251 (const char *str, size_t index);
+size_t rev_skip_nalpha (const char *str, size_t index);
 
 /// @brief custom qsort with standart qsort API-compatable realisation
 void cust_qsort (void *base, size_t count, size_t size, comparator_f comp);

@@ -7,14 +7,6 @@
 #include "onegin.h"
 #include "sort.h"
 
-/// Encoding ranges
-static const int  ENG_UP_MIN_VAL = 'A';
-static const int  ENG_UP_MAX_VAL = 'Z';
-static const int ENG_LOW_MIN_VAL = 'a';
-static const int ENG_LOW_MAX_VAL = 'z';
-static const int     RUS_MIN_VAL = 192;
-static const int     RUS_MAX_VAL = 255;
-
 //---------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------------
 
@@ -54,27 +46,27 @@ int rev_alpha_linecmp (const void *lhs, const void *rhs)
     return rev_alpha_strcmp (lhs_cast->content, lhs_cast->len, rhs_cast->content, rhs_cast->len);
 }
 
-char *skip_nalpha_cp1251 (char *str)
+char *skip_nalpha (char *str)
 {
     assert (str != NULL && "pointer can't be NULL");
 
-    return const_cast<char*>(skip_nalpha_cp1251((const char*) str));
+    return const_cast<char*>(skip_nalpha((const char*) str));
 }
 
-const char *skip_nalpha_cp1251 (const char *str)
+const char *skip_nalpha (const char *str)
 {
     assert (str != NULL && "pointer can't be NULL");
 
-    while (str[0] != '\0' && !cp1251_isalpha (str[0])) str++;
+    while (str[0] != '\0' && !isalpha (str[0])) str++;
 
     return str;
 }
 
-size_t rev_skip_nalpha_cp1251 (const char *str, size_t len)
+size_t rev_skip_nalpha (const char *str, size_t len)
 {
     assert (str != NULL && "pointer can't be NULL");
 
-    while (len > 0 && !cp1251_isalpha (str[len])) len--;
+    while (len > 0 && !isalpha (str[len])) len--;
 
     return len;
 }
@@ -84,8 +76,8 @@ int alpha_strcmp (const char *lhs, const char *rhs)
     assert (lhs != NULL && "pointer can't be NULL");
     assert (rhs != NULL && "pointer can't be NULL");
 
-    lhs = skip_nalpha_cp1251 (lhs);
-    rhs = skip_nalpha_cp1251 (rhs);
+    lhs = skip_nalpha (lhs);
+    rhs = skip_nalpha (rhs);
 
     while (
            lhs[0] != '\0' &&
@@ -96,8 +88,8 @@ int alpha_strcmp (const char *lhs, const char *rhs)
         lhs++;
         rhs++;
 
-        lhs = skip_nalpha_cp1251 (lhs);
-        rhs = skip_nalpha_cp1251 (rhs);
+        lhs = skip_nalpha (lhs);
+        rhs = skip_nalpha (rhs);
     }
 
     return chrcmp (lhs[0], rhs[0]);
@@ -112,8 +104,8 @@ int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_l
     l_len--; 
     r_len--;
 
-    l_len = rev_skip_nalpha_cp1251 (lhs, l_len);
-    r_len = rev_skip_nalpha_cp1251 (rhs, r_len);
+    l_len = rev_skip_nalpha (lhs, l_len);
+    r_len = rev_skip_nalpha (rhs, r_len);
 
     while (
            l_len > 0 &&
@@ -124,8 +116,8 @@ int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_l
         l_len--;
         r_len--;
 
-        l_len = rev_skip_nalpha_cp1251 (lhs, l_len);
-        r_len = rev_skip_nalpha_cp1251 (rhs, r_len);
+        l_len = rev_skip_nalpha (lhs, l_len);
+        r_len = rev_skip_nalpha (rhs, r_len);
     }
 
     return chrcmp (lhs[l_len], rhs[r_len]);
@@ -136,15 +128,6 @@ int chrcmp (char lhs, char rhs)
     if      (lhs < rhs) return -1;
     else if (lhs > rhs) return +1;
     else                return +0;
-}
-
-int cp1251_isalpha (char c)
-{
-    unsigned char u_c = (unsigned char) c;   
-
-    return (u_c >=     RUS_MIN_VAL && u_c <=     RUS_MAX_VAL)
-        || (u_c >=  ENG_UP_MIN_VAL && u_c <=  ENG_UP_MAX_VAL)
-        || (u_c >= ENG_LOW_MIN_VAL && u_c <= ENG_LOW_MAX_VAL);
 }
 
 #ifdef __SSE2__

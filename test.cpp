@@ -101,21 +101,21 @@ int test_cust_qsort ()
     return 0;
 }
 
-int test_skip_nalpha_cp1251 ()
+int test_skip_nalpha ()
 {
     char test_str[] = "   ?)!%^*__++!@#$%<?>/-* ,TP";
 
-    _ASSERT (*skip_nalpha_cp1251 (test_str) == 'T');
+    _ASSERT (*skip_nalpha (test_str) == 'T');
 
     return 0;
 }
 
-int test_rev_skip_nalpha_cp1251 ()
+int test_rev_skip_nalpha ()
 {
     char test_str[] = "TP    ?)!%^*__++!@#$%<?>/-* ,";
     size_t str_len  = sizeof (test_str) / sizeof (char);
 
-    _ASSERT (rev_skip_nalpha_cp1251 (test_str, str_len - 1) == 1);
+    _ASSERT (rev_skip_nalpha (test_str, str_len - 1) == 1);
 
     return 0;
 }
@@ -231,8 +231,8 @@ void run_tests ()
     printf ("Starting tests...\n\n");
 
     _TEST (test_cust_qsort ()            );
-    _TEST (test_skip_nalpha_cp1251 ()    );
-    _TEST (test_rev_skip_nalpha_cp1251 ());
+    _TEST (test_skip_nalpha ()           );
+    _TEST (test_rev_skip_nalpha ()       );
     _TEST (test_hashmap ()               );
     _TEST (test_bits ()                  );
     _TEST (test_prefixes ()              );

@@ -13,6 +13,15 @@
 struct text *read_text (FILE *stream);
 
 /**
+ * @brief      Read text from file
+ *
+ * @param      stream  Imput stream
+ *
+ * @return     pointer to allocated buffer or NULL if failed to read file or OOM
+ */
+char *read_file (FILE *stream);
+
+/**
  * @brief      Free memory, used by given file struct
  */
 void free_text (struct text *f_lines);

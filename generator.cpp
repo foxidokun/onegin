@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 #include "onegin.h"
 #include "sort.h"
 #include "generator.h"
@@ -227,7 +228,7 @@ static long int find_candidate (const struct text *text, unsigned int from,
 
             for (size_t i = 0; i < line_len; ++i)
             {
-                if (cp1251_isalpha(lines[n].content[i])) alpha_cnt++;
+                if (isalpha(lines[n].content[i])) alpha_cnt++;
             }
 
             if (((long double) alpha_cnt) / line_len < MIN_ALPHA_PERSENTAGE) continue;

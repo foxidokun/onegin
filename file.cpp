@@ -10,29 +10,42 @@ struct text *read_text (FILE *stream)
     assert (stream != NULL && "pointer can't be NULL");
 
     ssize_t file_len_tmp = file_size (stream);
-    if (file_len_tmp == ERROR) { return NULL; }
-
+    _UNWRAP_ERR_NULL (file_len_tmp);
     size_t file_len      = (size_t) file_len_tmp;
 
-    struct text *file    = (struct text *) calloc (1,            sizeof (struct text));
-    file->content        = (char *)        calloc (file_len + 1, sizeof (char));
-    file->content_size   = file_len + 1;
-    char *content_p      = file->content;
+    struct text *file    = (struct text *) calloc (1, sizeof (struct text)); _UNWRAP_NULL (file);
+    file->content        = read_file (stream);                               _UNWRAP_NULL (file->content);
+    file->content_size   = file_len;
 
-    if (fread (content_p, sizeof (char), file_len, stream) != file_len || ferror (stream))
-    {
-        return NULL;
-    }
-
-    content_p[file_len]  = '\0';
-
-    unsigned int n_lines = count_lines (content_p);
+    unsigned int n_lines = count_lines (file->content);
     file->lines          = (struct line *) calloc (n_lines, sizeof (struct line));
-    file->n_lines        = n_lines;
+    file->n_lines        = n_lines; _UNWRAP_NULL (file->lines);
 
     create_index (file);
 
     return file;
+}
+
+char *read_file (FILE *stream)
+{
+    assert (stream != NULL && "pointer can't be NULL");
+
+    ssize_t file_len_tmp = file_size (stream);
+    if (file_len_tmp == ERROR) { return NULL; }
+
+    size_t file_len      = (size_t) file_len_tmp;
+
+    char *file_buf = (char *) calloc (file_len + 1, sizeof (char));
+    _UNWRAP_NULL (file_buf);
+
+    if (fread (file_buf, sizeof (char), file_len, stream) != file_len || ferror (stream))
+    {
+        return NULL;
+    }
+
+    file_buf[file_len] = '\0';
+
+    return file_buf;
 }
 
 int write_lines (const struct text *text, FILE *stream)
@@ -58,28 +71,19 @@ int write_buf (const struct text *text, FILE *stream)
     assert (text   != NULL && "pointer can't be NULL");
     assert (stream != NULL && "pointer can't be NULL");
 
-    char  *content       = text->content;
-    size_t content_size  = text->content_size;
+    const char  *content = text->content;
     unsigned int n_lines = text->n_lines;
-
-    char *out_buf = (char *) calloc (content_size, sizeof (char));
-    char *buf_cur = out_buf;
-
-    memcpy (out_buf, content, content_size);
 
     for (unsigned int i = 0; i < n_lines; ++i)
     {
-        buf_cur = strchr (buf_cur, '\0');
-        buf_cur[0] = '\n';
-        buf_cur++;
+        fputs (content, stream);
+        fputc ('\n',    stream);
+
+        if (ferror (stream)) { return -1; }
+
+        content = strchr (content, '\0') + 1;
     }
 
-    if (fwrite (out_buf, sizeof (char), content_size, stream) != content_size)
-    {
-        return ERROR;
-    }
-
-    free (out_buf);
     return 0;
 }
 

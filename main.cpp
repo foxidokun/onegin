@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <locale.h>
 #include "onegin.h"
 #include "sort.h"
 #include "file.h"
@@ -12,8 +13,6 @@
 
 int main ()
 {
-    srand ((unsigned int) time (NULL));
-
     run_tests ();
 }
 
@@ -21,11 +20,13 @@ int main ()
 
 int main (int argc, char *argv[])
 {
-    const int POEM_NLINES     = 256;
-    const int AFFINITY_RANGE  =  15;
-    const int MARKOV_BUF_SIZE = 256;
+    const int POEM_NLINES       = 256;
+    const int AFFINITY_RANGE    =  15;
+    const int MARKOV_BUF_SIZE   = 256;
+    const int MARKOV_MAX_PREFIX =   5;
 
     srand ((unsigned int) time (NULL));
+    setlocale (LC_CTYPE, "ru_RU.CP1251");
 
     if (argc != 3 || (argc == 2 && strcmp (argv[1], "-h") == 0))
     {
@@ -78,7 +79,7 @@ int main (int argc, char *argv[])
 	}
     // ------- CHAIN GENERATOR -------
 
-    chain *ch = create_chain (5);
+    chain *ch = create_chain (MARKOV_MAX_PREFIX);
     _UNWRAP_NULL_ERR (ch);
     collect_stats (file, ch);
 
