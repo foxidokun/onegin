@@ -180,6 +180,30 @@ void cust_qsort (void* base, size_t count, size_t size, comparator_f comp)
     assert (base != NULL && "pointer can't be NULL");
 
     char *const base_p = (char *) base;
+    // Small array optimisations
+
+    if      (count == 1) { return; }
+    else if (count == 2 && comp (base_p, base_p + size) > 0)
+    {
+        swap (base_p + size, base_p + size, size);
+    }
+    else if (count == 3)
+    {
+        if (comp (base_p, base_p + size) > 0)
+        {   swap (base_p, base_p + size, size);
+        }
+
+        if (comp (base_p + size, base_p + 2*size) > 0)
+        {   swap (base_p + size, base_p + 2*size, size);
+
+            if (comp (base_p, base_p + size) > 0)
+            {   swap (base_p, base_p + size, size);
+            }
+        }
+    }
+
+    // Regular algorithm
+
     size_t lo          = 0;
     size_t hi          = count - 1;
     size_t pi          = count / 2;
