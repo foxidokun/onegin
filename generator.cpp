@@ -86,7 +86,7 @@ int markov_generator (const chain *ch, char *buf, size_t buf_size)
     char   next_char = '\0';
 
     // Fill buf with '\0'
-    strncpy (buf, "", buf_size);
+    memset (buf, '\0', buf_size);
 
     // Do not overwrite last '\0'
     while (buf_size > 1)
