@@ -22,8 +22,8 @@ int main (int argc, char *argv[])
 {
     const int POEM_NLINES       = 256;
     const int AFFINITY_RANGE    =  15;
-    const int MARKOV_BUF_SIZE   = 256;
-    const int MARKOV_MAX_PREFIX =   5;
+    const int MARKOV_BUF_SIZE   = 512;
+    const int MARKOV_MAX_PREFIX =   9;
 
     srand ((unsigned int) time (NULL));
     setlocale (LC_CTYPE, "ru_RU.CP1251");
