@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "onegin.h"
 #include "prefixes.h"
 #include "hashmap.h"
@@ -38,6 +39,7 @@
 }
 
 static int intcmp (const void *lhs, const void *rhs);
+static int cust_double_cmp (const void *lhs, const void *rhs);
 
 // ------------------------------------------------------------------------------------------------
 //                                  SORT TESTS
@@ -64,12 +66,38 @@ int test_cust_qsort ()
             if (array[i] < array[i-1])
             {
                 free (array);
-                return -1;
+                _ASSERT (0);
             }
         }
     }
 
     free (array);
+
+    const int PREMADE_ARRAY_SIZE = 14;
+    double premade_array[14] = {14.00, 1.01, 10.02, 11.03, 2.04, 5.05, 8.06, 11.07, 4.08, 7.09, 15.10, 3.11, 13.12, 8.13};
+    cust_qsort(premade_array, PREMADE_ARRAY_SIZE, sizeof (double), cust_double_cmp);
+
+    // If value has changed during sorting, this is an error
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wfloat-equal"
+
+    _ASSERT (premade_array[0]  == 1.01);
+    _ASSERT (premade_array[1]  == 2.04);
+    _ASSERT (premade_array[2]  == 3.11);
+    _ASSERT (premade_array[3]  == 4.08);
+    _ASSERT (premade_array[4]  == 5.05);
+    _ASSERT (premade_array[5]  == 7.09);
+    _ASSERT (premade_array[6]  == 8.13 || premade_array[6]  == 8.06);
+    _ASSERT (premade_array[7]  == 8.13 || premade_array[7]  == 8.06);
+    _ASSERT (premade_array[8]  == 10.02);
+    _ASSERT (premade_array[9]  == 11.03 || premade_array[9]   == 11.07);
+    _ASSERT (premade_array[10] == 11.03 || premade_array[10]  == 11.07);
+    _ASSERT (premade_array[11] == 13.12);
+    _ASSERT (premade_array[12] == 14.00);
+    _ASSERT (premade_array[13] == 15.10);
+
+    #pragma GCC diagnostic pop
+
     return 0;
 }
 
@@ -217,6 +245,24 @@ static int intcmp (const void *lhs, const void *rhs)
 {
     int lhs_v = * ((const int *) lhs);
     int rhs_v = * ((const int *) rhs);
+
+    if      (lhs_v > rhs_v) return +1;
+    else if (lhs_v < rhs_v) return -1;
+    else                    return +0;
+}
+
+/**
+ * @brief      Compare double values by their trunc() components
+ *
+ * @param[in]  lhs   The left hand side
+ * @param[in]  rhs   The right hand side
+ *
+ * @return     as in strcmp
+ */
+static int cust_double_cmp (const void *lhs, const void *rhs)
+{
+    int lhs_v = (int) trunc (* ((const double *) lhs));
+    int rhs_v = (int) trunc (* ((const double *) rhs));
 
     if      (lhs_v > rhs_v) return +1;
     else if (lhs_v < rhs_v) return -1;

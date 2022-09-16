@@ -22,41 +22,6 @@ static void free_by_pointer (void *st);
 
 //---------------------------------------------------------------------------------------------------------
 
-chain *create_chain (size_t max_prefix_len)
-{
-    chain *ch = (chain *) calloc (1, sizeof (struct chain));
-    _UNWRAP_NULL (ch);
-
-    ch->map   = hashmap_create (NPREFIXES, (max_prefix_len + 1)*sizeof (char),
-                                sizeof (stat *), strhash, keycmp);
-    _UNWRAP_NULL (ch->map);
-
-    ch->max_prefix_len = max_prefix_len;
-
-    return ch;
-}
-
-void free_chain (chain *ch)
-{
-    assert (ch != NULL && "pointer can't be NULL");
-
-    hashmap_forall (ch->map, free_by_pointer); // Free all allocated stat structers
-    hashmap_free   (ch->map);
-    free (ch);
-}
-
-/**
- * @brief      Free allocated memory by (void **)
- *
- * @param      pp    void **
- */
-static void free_by_pointer (void *pp)
-{
-    assert (pp != NULL && "pointer can't be NULL");
-
-    free (* (void**)pp);
-}
-
 int collect_stats (const text *text, chain *ch)
 {
     assert (text != NULL && "pointer can't be NULL");
@@ -284,6 +249,41 @@ static long int find_candidate (const struct text *text, unsigned int from,
     free (cand_list);
     
     return cand;
+}
+
+chain *create_chain (size_t max_prefix_len)
+{
+    chain *ch = (chain *) calloc (1, sizeof (struct chain));
+    _UNWRAP_NULL (ch);
+
+    ch->map   = hashmap_create (NPREFIXES, (max_prefix_len + 1)*sizeof (char),
+                                sizeof (stat *), strhash, keycmp);
+    _UNWRAP_NULL (ch->map);
+
+    ch->max_prefix_len = max_prefix_len;
+
+    return ch;
+}
+
+void free_chain (chain *ch)
+{
+    assert (ch != NULL && "pointer can't be NULL");
+
+    hashmap_forall (ch->map, free_by_pointer); // Free all allocated stat structers
+    hashmap_free   (ch->map);
+    free (ch);
+}
+
+/**
+ * @brief      Free allocated memory by (void **)
+ *
+ * @param      pp    void **
+ */
+static void free_by_pointer (void *pp)
+{
+    assert (pp != NULL && "pointer can't be NULL");
+
+    free (* (void**)pp);
 }
 
 static long int max (long int a, long int b)
