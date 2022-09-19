@@ -50,7 +50,7 @@ int main (int argc, char *argv[])
     struct text *file = read_text (in_stream);
     fclose (in_stream);
 
-    if (file == NULL) { log (log::ERR, "Failed to read file or OOM\n"); return -1; }
+    if (file == NULL) { log (log::ERR, "Failed to read file or OOM"); return -1; }
 
     // ------- DIFFERRENT ORDERS -------
     log (log::DBG, "Onegin sorting");
@@ -73,7 +73,7 @@ int main (int argc, char *argv[])
     
     if (poem_generator(file, poem, POEM_NLINES, AFFINITY_RANGE) == ERROR)
     {
-        log     (log::ERR,   "Failed to generate poem\n");
+        log     (log::ERR,   "Failed to generate poem");
         fprintf (out_stream, "Failed to generate poem\n");
     }
 	else
@@ -87,7 +87,7 @@ int main (int argc, char *argv[])
 	}
 
     // ------- CHAIN GENERATOR -------
-    log (log::DBG, "Chain generator");
+    log (log::DBG, "Chain training");
 
     chain *ch = create_chain (MARKOV_MAX_PREFIX);
     _UNWRAP_NULL_ERR (ch);
@@ -95,6 +95,8 @@ int main (int argc, char *argv[])
 
     char *buf = (char *) calloc (MARKOV_BUF_SIZE, sizeof (char));
     _UNWRAP_NULL_ERR (buf);
+
+    log (log::DBG, "Chain generating");
 
     fprintf (out_stream, "\n=== MARKOV GENERATED ===\n\n");
     markov_generator(ch, buf, MARKOV_BUF_SIZE);
