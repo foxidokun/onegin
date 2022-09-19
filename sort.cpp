@@ -125,9 +125,7 @@ int rev_alpha_strcmp (const char *lhs, size_t l_len, const char *rhs, size_t r_l
 
 int chrcmp (char lhs, char rhs)
 {
-    if      (lhs < rhs) return -1;
-    else if (lhs > rhs) return +1;
-    else                return +0;
+    return lhs - rhs;
 }
 
 #ifdef __SSE2__
