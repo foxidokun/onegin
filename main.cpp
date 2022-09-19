@@ -6,6 +6,7 @@
 #include "sort.h"
 #include "file.h"
 #include "generator.h"
+#include "log.h"
 
 #ifdef TEST
 
@@ -20,6 +21,8 @@ int main ()
 
 int main (int argc, char *argv[])
 {
+    set_log_level  (log::DBG);
+
     const int POEM_NLINES       = 256;
     const int AFFINITY_RANGE    =  15;
     const int MARKOV_BUF_SIZE   = 512;
@@ -35,18 +38,22 @@ int main (int argc, char *argv[])
         return 0;
     } 
 
+    // ------- FILE SETUP -------
+    log (log::DBG, "Opening files");
+
     FILE *in_stream  = fopen (argv[1], "r");
     FILE *out_stream = fopen (argv[2], "w");
 
-    if (in_stream  == NULL) { printf ("Failed to open input file" ); return ERROR; }
-    if (out_stream == NULL) { printf ("Failed to open output file"); return ERROR; }
+    if (in_stream  == NULL) { log (log::ERR, "Failed to open input file" ); return ERROR; }
+    if (out_stream == NULL) { log (log::ERR, "Failed to open output file"); return ERROR; }
 
-    struct text *file   = read_text (in_stream);
+    struct text *file = read_text (in_stream);
     fclose (in_stream);
 
-    if (file == NULL) { printf ("Failed to read file or OOM\n"); return -1; }
+    if (file == NULL) { log (log::ERR, "Failed to read file or OOM\n"); return -1; }
 
     // ------- DIFFERRENT ORDERS -------
+    log (log::DBG, "Onegin sorting");
 
     fprintf (out_stream, "=== Alphabetical order ===\n\n");
     alpha_file_lines_sort (file, cust_qsort);
@@ -60,12 +67,13 @@ int main (int argc, char *argv[])
     write_lines (file, out_stream);
 
     // ------- POEM GENERATOR -------
+    log (log::DBG, "Generating poem");
 
     char **poem = (char **) calloc (POEM_NLINES, sizeof (char*));
     
     if (poem_generator(file, poem, POEM_NLINES, AFFINITY_RANGE) == ERROR)
     {
-        fprintf (stderr,     "Failed to generate poem\n");
+        log     (log::ERR,   "Failed to generate poem\n");
         fprintf (out_stream, "Failed to generate poem\n");
     }
 	else
@@ -77,7 +85,9 @@ int main (int argc, char *argv[])
             fprintf (out_stream, "%s\n", poem[i]);
         }
 	}
+
     // ------- CHAIN GENERATOR -------
+    log (log::DBG, "Chain generator");
 
     chain *ch = create_chain (MARKOV_MAX_PREFIX);
     _UNWRAP_NULL_ERR (ch);
@@ -91,6 +101,7 @@ int main (int argc, char *argv[])
     fprintf (out_stream, "%s\n", buf);
     
     // ------- CLEANUP -------
+    log (log::DBG, "Cleaning up");
 
     free (poem);
     free (buf);
