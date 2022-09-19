@@ -176,6 +176,7 @@ int poem_generator (const struct text *text, char **buf, unsigned int buf_size,
 
         if (cand_num_tmp == ERROR)
         {   
+            free_bitflags (used);
             return ERROR;
         }
 
@@ -240,6 +241,7 @@ static long int find_candidate (const struct text *text, unsigned int from,
 
     if (cand_num == 0)
     {
+        free (cand_list);
         return ERROR;
     }
 
